@@ -4,12 +4,13 @@ const { generateAccessToken, generateRefreshToken } = require('../middlewares/jw
 const jwt = require('jsonwebtoken')
 const sendMail = require('../ultils/sendMail')
 const crypto = require('crypto')
+const makeToken = require('uniquid')
 
 const register = asyncHandler(async (req, res) => {
-    const { email, password, firstname, lastname } = req.body
-    if (!email || !password || !lastname || !firstname) {
+    const { email, password, firstname, lastname, mobile } = req.body
+    if (!email || !password || !lastname || !firstname || !mobile) {
         return res.status(400).json({
-            sucess: false,
+            success: false,
             mes: 'Missing inputs'
         })
     }
@@ -18,19 +19,46 @@ const register = asyncHandler(async (req, res) => {
         throw new Error('User has existed!')
     }
     else {
-        const newUser = await User.create(req.body)
-        return res.status(200).json({
-            sucess: newUser ? true : false,
-            mes: newUser ? "Register is successfully. Please go login " : "Something went wrong"
+        const token = await makeToken()
+        res.cookie('dataregister', { ...req.body, token }, {
+            httpOnly: true, maxAge: 15 * 60 * 1000
+        })
+        const html = `Xin vui lòng click vào link dưới đây để hoàn tất quá trình đăng kí của bạn.Link này sẽ hết hạn sau 15 phút kể từ bây giới <a href=${process.env.URL_SERVER}/api/user/finalregister/${token}>Click here</a>`
+        await sendMail({ email, html, subject: 'Hoàn tất đăng ký Digital World' })
+        return res.json({
+            success: true,
+            mes: 'Please check your email to active account'
         })
     }
-})
 
+})
+const finalRegister = asyncHandler(async (req, res) => {
+    const cookie = req.cookies
+    const { token } = req.params
+    if (Object.keys(cookie).length === 0 || cookie.dataregister.token !== token) {
+        res.clearCookie('dataregister')
+        return res.redirect(`${process.env.CLIENT_URL}/register/fail`)}
+    const newUser = await User.create({
+        email: cookie?.dataregister?.email,
+        password: cookie?.dataregister?.password,
+        firstname: cookie?.dataregister?.firstname,
+        lastname: cookie?.dataregister?.lastname,
+        mobile: cookie?.dataregister?.mobile,
+
+    })
+    res.clearCookie('dataregister')
+    if (newUser) {
+        return res.redirect(`${process.env.CLIENT_URL}/register/success`)
+    }
+    else {
+        return res.redirect(`${process.env.CLIENT_URL}/register/fail`)
+    }
+})
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body
     if (!email || !password) {
         return res.status(400).json({
-            sucess: false,
+            success: false,
             mes: 'Missing inputs'
         })
     }
@@ -98,10 +126,11 @@ const forgotPassword = asyncHandler(async (req, res) => {
     const resetToken = user.createPasswordChangedToken()
     await user.save()
 
-    const html = `Xin vui longf click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15 phút kể từ bây giới <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click here</a>`
+    const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15 phút kể từ bây giới <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click here</a>`
     const data = {
         email,
-        html
+        html,
+        subject: 'Forgot password'
     }
     const rs = await sendMail(data)
     return res.status(200).json({
@@ -122,7 +151,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     await user.save()
     return res.status(200).json({
         success: user ? true : false,
-        mes: user ? 'Uplated password' : 'Something went wrong'
+        mes: user ? 'Updated password' : 'Something went wrong'
     })
 })
 const getUser = asyncHandler(async (req, res) => {
@@ -143,21 +172,58 @@ const deleteUser = asyncHandler(async (req, res) => {
 })
 const updateUser = asyncHandler(async (req, res) => {
     const { _id } = req.user
-    if (!_id || Object.keys(req.body).length === 0) throw new Error('Missing imputs')
+    if (!_id || Object.keys(req.body).length === 0) throw new Error('Missing inputs')
     const response = await User.findByIdAndUpdate(_id, req.body, { new: true }).select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
         updateUser: response ? response : 'Something went wrong'
     })
 })
-const uplateUserByAdmin = asyncHandler(async (req, res) => {
+const updateUserByAdmin = asyncHandler(async (req, res) => {
     const { uid } = req.params
-    if (Object.keys(req.body).length === 0) throw new Error('Missing imputs')
+    if (Object.keys(req.body).length === 0) throw new Error('Missing inputs')
     const response = await User.findByIdAndUpdate(uid, req.body, { new: true }).select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
         updateUser: response ? response : 'Something went wrong'
     })
+})
+const updateUserAddress = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    if (!req.body.address) throw new Error('Missing inputs')
+    const response = await User.findByIdAndUpdate(_id, { $push: { address: req.body.address } }, { new: true }).select('-refreshToken -password -role')
+    return res.status(200).json({
+        success: response ? true : false,
+        updateUser: response ? response : 'Something went wrong'
+    })
+})
+const updateCart = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const { pid, quantity, color } = req.body
+    if (!pid || !quantity || !color) throw new Error('Missing inputs')
+    const user = await User.findById(_id).select('cart')
+    const alreadyProduct = user?.cart?.find(el => el.product.toString() === pid)
+    if (alreadyProduct) {
+        if (alreadyProduct.color === color) {
+            const response = await User.updateOne({ cart: { $elemMatch: alreadyProduct } }, { $set: { "cart.$.quantity": quantity } }, { new: true })
+            return res.status(200).json({
+                success: response ? true : false,
+                updateUser: response ? response : 'Something went wrong'
+            })
+        } else {
+            const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity, color } } }, { new: true })
+            return res.status(200).json({
+                success: response ? true : false,
+                updateUser: response ? response : 'Something went wrong'
+            })
+        }
+    } else {
+        const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity, color } } }, { new: true })
+        return res.status(200).json({
+            success: response ? true : false,
+            updateUser: response ? response : 'Something went wrong'
+        })
+    }
 })
 module.exports = {
     register,
@@ -170,5 +236,8 @@ module.exports = {
     getUser,
     deleteUser,
     updateUser,
-    uplateUserByAdmin
+    updateUserByAdmin,
+    updateUserAddress,
+    updateCart,
+    finalRegister
 }
