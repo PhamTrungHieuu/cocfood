@@ -37,7 +37,8 @@ const finalRegister = asyncHandler(async (req, res) => {
     const { token } = req.params
     if (Object.keys(cookie).length === 0 || cookie.dataregister.token !== token) {
         res.clearCookie('dataregister')
-        return res.redirect(`${process.env.CLIENT_URL}/register/fail`)}
+        return res.redirect(`${process.env.CLIENT_URL}/register/fail`)
+    }
     const newUser = await User.create({
         email: cookie?.dataregister?.email,
         password: cookie?.dataregister?.password,
@@ -119,14 +120,14 @@ const logout = asyncHandler(async (req, res) => {
     })
 })
 const forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.query
+    const { email } = req.body
     if (!email) throw new Error('Missing email')
     const user = await User.findOne({ email })
     if (!user) throw new Error('User not found')
     const resetToken = user.createPasswordChangedToken()
     await user.save()
 
-    const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15 phút kể từ bây giới <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click here</a>`
+    const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.Link này sẽ hết hạn sau 15 phút kể từ bây giới <a href=${process.env.CLIENT_URL}/passwordreset/${resetToken}>Click here</a>`
     const data = {
         email,
         html,
@@ -199,31 +200,53 @@ const updateUserAddress = asyncHandler(async (req, res) => {
 })
 const updateCart = asyncHandler(async (req, res) => {
     const { _id } = req.user
-    const { pid, quantity, color } = req.body
-    if (!pid || !quantity || !color) throw new Error('Missing inputs')
+    const { pid, quantity, isInput } = req.body
+    if (!pid || !quantity) throw new Error('Missing inputs')
     const user = await User.findById(_id).select('cart')
     const alreadyProduct = user?.cart?.find(el => el.product.toString() === pid)
     if (alreadyProduct) {
-        if (alreadyProduct.color === color) {
-            const response = await User.updateOne({ cart: { $elemMatch: alreadyProduct } }, { $set: { "cart.$.quantity": quantity } }, { new: true })
-            return res.status(200).json({
-                success: response ? true : false,
-                updateUser: response ? response : 'Something went wrong'
-            })
-        } else {
-            const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity, color } } }, { new: true })
-            return res.status(200).json({
-                success: response ? true : false,
-                updateUser: response ? response : 'Something went wrong'
-            })
+        if (alreadyProduct.product.toString() === pid) {
+            if (isInput) {
+                const response = await User.updateOne({ cart: { $elemMatch: alreadyProduct } }, { $set: { "cart.$.quantity": quantity } }, { new: true })
+                return res.status(200).json({
+                    success: response ? true : false,
+                    updateCart: response ? response : 'Something went wrong'
+                })
+            } else {
+
+                const response = await User.updateOne({ cart: { $elemMatch: alreadyProduct } }, { $set: { "cart.$.quantity": +quantity + +alreadyProduct.quantity } }, { new: true })
+                return res.status(200).json({
+                    success: response ? true : false,
+                    updateCart: response ? response : 'Something went wrong'
+                })
+            }
         }
     } else {
-        const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity, color } } }, { new: true })
+        const response = await User.findByIdAndUpdate(_id, { $push: { cart: { product: pid, quantity } } }, { new: true })
         return res.status(200).json({
             success: response ? true : false,
-            updateUser: response ? response : 'Something went wrong'
+            updateCart: response ? response : 'Something went wrong'
         })
     }
+})
+const getCart = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price thumb')
+    return res.status(200).json({
+        success: userCart ? true : false,
+        dataCart: userCart ? userCart : 'Chưa có sản phẩm'
+    })
+})
+const deleteCart = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const { pid } = req.body
+    const userCart = await User.findById(_id);
+    userCart.cart = userCart.cart.filter(item => item.product._id.toString() !== pid);
+    await userCart.save();
+    return res.status(200).json({
+        success: userCart ? true : false,
+        deleteCart: userCart ? userCart : 'Lỗi xóa sản phẩm'
+    })
 })
 module.exports = {
     register,
@@ -239,5 +262,7 @@ module.exports = {
     updateUserByAdmin,
     updateUserAddress,
     updateCart,
-    finalRegister
+    finalRegister,
+    getCart,
+    deleteCart,
 }

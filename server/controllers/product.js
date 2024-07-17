@@ -130,23 +130,31 @@ const ratings = asyncHandler(async (req, res) => {
     // Sum ratings
     const updatedProduct = await Product.findById(pid)
     const ratingCount = updatedProduct.ratings.length
-    const sumRatings = updatedProduct.ratings.reduce((sum, el) => sum + +el.star,0)
-    updatedProduct.totalRatings = Math.round(sumRatings*10/ratingCount)/10
+    const sumRatings = updatedProduct.ratings.reduce((sum, el) => sum + +el.star, 0)
+    updatedProduct.totalRatings = Math.round(sumRatings * 10 / ratingCount) / 10
 
     await updatedProduct.save();
-
     return res.status(200).json({
         status: true,
         updatedProduct
     })
 })
-const uploadImagesProduct = asyncHandler(async(req, res)=>{
-    const {pid} = req.params
-    if(!req.files) throw new Error('Missing inputs')
-    const reponse = await Product.findByIdAndUpdate(pid, {$push : {images:{ $each: req.files.map(el => el.path)}}}, {new : true})
+const uploadImagesProduct = asyncHandler(async (req, res) => {
+    const { pid } = req.params
+    if (!req.files) throw new Error('Missing inputs')
+    const reponse = await Product.findByIdAndUpdate(pid, { $push: { images: { $each: req.files.map(el => el.path) } } }, { new: true })
     return res.status(200).json({
-        status: reponse?true:false,
+        status: reponse ? true : false,
         updatedProduct: reponse ? reponse : 'Cannot upload images product'
+    })
+})
+const uploadThumbProduct = asyncHandler(async (req, res) => {
+    const { pid } = req.params
+    if (!req.file) throw new Error('Missing inputs')
+    const reponse = await Product.findByIdAndUpdate(pid,  {image: req.file.path}, { new: true })
+    return res.status(200).json({
+        status: reponse ? true : false,
+        updatedProduct: reponse ? reponse : 'Cannot upload thumb product'
     })
 })
 module.exports = {
@@ -157,4 +165,5 @@ module.exports = {
     deleteProduct,
     ratings,
     uploadImagesProduct,
+    uploadThumbProduct
 }
