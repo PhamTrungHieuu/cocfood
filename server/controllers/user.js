@@ -162,10 +162,19 @@ const getUser = asyncHandler(async (req, res) => {
         users: response
     })
 })
+const getUserByadmin = asyncHandler(async (req, res) => {
+    const { uid } = req.params
+    if (!uid) throw new Error('Missing inputs')
+    const response = await User.findById(uid).select('-refreshToken -password -role')
+    return res.status(200).json({
+        success: response ? true : false,
+        users: response
+    })
+})
 const deleteUser = asyncHandler(async (req, res) => {
-    const { _id } = req.query
-    if (!_id) throw new Error('Missing inputs')
-    const response = await User.findByIdAndDelete(_id)
+    const { uid } = req.params
+    if (!uid) throw new Error('Missing inputs')
+    const response = await User.findByIdAndDelete(uid)
     return res.status(200).json({
         success: response ? true : false,
         deleteUser: response ? `User with email ${response.email} delete` : 'No user delete'
@@ -192,7 +201,8 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
 const updateUserAddress = asyncHandler(async (req, res) => {
     const { _id } = req.user
     if (!req.body.address) throw new Error('Missing inputs')
-    const response = await User.findByIdAndUpdate(_id, { $push: { address: req.body.address } }, { new: true }).select('-refreshToken -password -role')
+    // { $push: { address: req.body.address } }
+    const response = await User.findByIdAndUpdate(_id, req.body, { new: true }).select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
         updateUser: response ? response : 'Something went wrong'
@@ -248,6 +258,15 @@ const deleteCart = asyncHandler(async (req, res) => {
         deleteCart: userCart ? userCart : 'Lỗi xóa sản phẩm'
     })
 })
+const uploadAvatar = asyncHandler(async (req, res) => {
+    const { uid } = req.params
+    if (!req.file) throw new Error('Missing inputs')
+    const reponse = await User.findByIdAndUpdate(uid, { avatar: req.file.path }, { new: true })
+    return res.status(200).json({
+        success: reponse ? true : false,
+        updatedProduct: reponse ? reponse : 'Cannot upload avatar user'
+    })
+})
 module.exports = {
     register,
     login,
@@ -257,6 +276,7 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getUser,
+    getUserByadmin,
     deleteUser,
     updateUser,
     updateUserByAdmin,
@@ -265,4 +285,5 @@ module.exports = {
     finalRegister,
     getCart,
     deleteCart,
+    uploadAvatar,
 }

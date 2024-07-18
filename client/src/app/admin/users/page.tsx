@@ -53,7 +53,7 @@ const Users = () => {
     }
     const deleteUser = async(uid :string) => {
         try {
-            const response = await axiosInstance.delete(`user/?_id=${uid}`);
+            const response = await axiosInstance.delete(`user/${uid}`);
             setUserData(response.data.users);
         } catch (error) {
             console.error('Error fetching data:', error);

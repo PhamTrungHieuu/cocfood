@@ -151,7 +151,7 @@ const uploadImagesProduct = asyncHandler(async (req, res) => {
 const uploadThumbProduct = asyncHandler(async (req, res) => {
     const { pid } = req.params
     if (!req.file) throw new Error('Missing inputs')
-    const reponse = await Product.findByIdAndUpdate(pid,  {image: req.file.path}, { new: true })
+    const reponse = await Product.findByIdAndUpdate(pid, { thumb: req.file.path }, { new: true })
     return res.status(200).json({
         status: reponse ? true : false,
         updatedProduct: reponse ? reponse : 'Cannot upload thumb product'

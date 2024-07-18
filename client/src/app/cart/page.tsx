@@ -44,7 +44,7 @@ const Cart = () => {
         fetchData();
     }, []);
     useEffect(() => {
-        const total = dataCart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+        const total = dataCart?.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
         setSumPrice(total);
     }, [dataCart]);
     const handleChangeQuantity = async (e, pid: string) => {
@@ -96,7 +96,7 @@ const Cart = () => {
         dispatch(fetchUserData());
     }
     const formatPrice = (price: number) => {
-        return price.toLocaleString('vi-VN');
+        return price?.toLocaleString('vi-VN');
     };
     return (
         <div>

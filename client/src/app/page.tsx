@@ -115,7 +115,7 @@ export default function Home() {
             </div>
             <div className="productlist" ref={productListRef}>
               {products.map((product, index) => (
-                <Link className='product-item' href={`/productlist/${product._id}`} key={index}>
+                <Link className='product-item-sale' href={`/productlist/${product._id}`} key={index}>
                   <div className='bi bi-heart-fill icon-like'></div>
                   <div className='productList-product-img'>
                     <img className='productList-product-image' src={product.thumb} />

@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { AppDispatch } from '@/store/store';
 import { login } from '@/store/authSilce';
 import { useDispatch } from 'react-redux';
+import { toast, ToastContainer } from 'react-toastify';
 const Login: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
     const router = useRouter()
@@ -99,8 +100,8 @@ const Login: React.FC = () => {
             {isForgotPassword && <div className='popup-forgot-passworf' style={{ position: 'absolute', width: ' 90%', height: '500px', background: 'white', top: '0' }}>
                 <div className="container mt-5">
                     <div className="row" >
-                        <div className="col-md-6 offset-md-3 justify-content-center d-flex align-items-center" style={{ color : '#f93', borderRadius: '10px', boxShadow: '0 5px 5px 5px #ddd', border: '1px solid #f93', height: '200px' }}>
-                            <div style={{width: '80%'}}>
+                        <div className="col-md-6 offset-md-3 justify-content-center d-flex align-items-center" style={{ color: '#f93', borderRadius: '10px', boxShadow: '0 5px 5px 5px #ddd', border: '1px solid #f93', height: '200px' }}>
+                            <div style={{ width: '80%' }}>
                                 <h3 className='d-flex justify-content-center mb-3'> Quên mật khẩu </h3>
                                 <div className="input-group">
                                     <input type="email" className="form-control" placeholder="Email" onChange={handleChangeUser} value={email}></input>

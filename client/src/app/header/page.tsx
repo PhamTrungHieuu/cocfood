@@ -9,6 +9,7 @@ import { logout } from '@/store/authSilce';
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { toast, ToastContainer } from 'react-toastify';
 interface Token extends JwtPayload {
     _id: string;
     role: string;
@@ -34,6 +35,7 @@ const Header: React.FC = () => {
     const [quantityCart, setQuantityCart] = useState(0);
     const [isAdmin, setIsAdmin] = useState(false);
     const [decodedToken, setDecodedToken] = useState<Token | null>(null);
+    const [isHovered, setIsHovered] = useState(false);
     useEffect(() => {
         tokenDecode();
     }, [])
@@ -47,7 +49,7 @@ const Header: React.FC = () => {
     useEffect(() => {
         setIsLoggedIn(localData.isLoggedIn)
         tokenDecode();
-    },[localData])
+    }, [localData])
     useEffect(() => {
         const interval = setInterval(() => {
             setIsVisible(false);
@@ -106,13 +108,7 @@ const Header: React.FC = () => {
         }
     }
     const handleAccountClick = () => {
-        if (isLoggedIn) {
-            dispatch(logout());
-            setIsAdmin(false)
-            // router.push('/logout');
-        } else {
-            router.push('/login');
-        }
+        router.push('/login');
     };
     const showCart = () => {
         if (isLoggedIn) {
@@ -134,12 +130,18 @@ const Header: React.FC = () => {
             });
         }
     }
-    const showAdmin = () => {
-        if (decodedToken?.role === 'admin') {
-            router.push('/admin');
-        } else {
-            Swal.fire("Bạn không phải là admin!");
-        }
+    // const showAdmin = () => {
+    //     if (decodedToken?.role === 'admin') {
+    //         router.push('/admin');
+    //     } else {
+    //         Swal.fire("Bạn không phải là admin!");
+    //     }
+    // }
+    const clickLogout = () => {
+        dispatch(logout());
+        setIsAdmin(false);
+        toast.success('Đăng xuất thành công!', { autoClose: 1000 });
+        setIsHovered(false)
     }
     return (
         <div className='header-box'>
@@ -164,7 +166,21 @@ const Header: React.FC = () => {
                     <button className='header-option-btn header-option-cart bi bi-cart-fill' onClick={showCart}>
                         <div className='icon-quantity-cart'>{quantityCart}</div>
                     </button>
-                    <button onClick={handleAccountClick} className='header-option-btn header-option-account bi bi-person-fill'></button>
+                    {isLoggedIn ?
+                        <div style={{ position: 'relative' }} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+                            <div className='header-avatar' >
+                                <img className='header-avatar-img' src={userData?.rs?.avatar}></img>
+                            </div>
+                            {isHovered && (
+                                <div className='popup-account'>
+                                    <button className='popup-btn' >Hồ sơ của bạn </button>
+                                    <button className='popup-btn' onClick={() => clickLogout()} >Đăng xuất </button>
+                                </div>
+                            )}
+                        </div>
+                        :
+                        <button onClick={handleAccountClick} className='header-option-btn header-option-account bi bi-box-arrow-in-right'></button>
+                    }
                     {isAdmin && <Link href={'/admin'} className='header-option-btn header-option-admin bi bi-person-fill-gear'></Link>
                     }
                 </div>
@@ -173,6 +189,7 @@ const Header: React.FC = () => {
                     <div className={`slogan-text ${isVisible ? 'show' : 'hide'}`}>{slogan[sloganId]}</div>
                 </div>
             </div>
+            <ToastContainer></ToastContainer>
         </div>
     );
 };

@@ -26,12 +26,16 @@ var userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    avatar: {
+        type: String,
+        default: 'https://res.cloudinary.com/dlhpuaa9i/image/upload/v1721211349/download_1_nmkqkr.jpg',
+    },
     role: {
         type: String,
         default: 'user',
     },
     cart: [{
-        product: {type: mongoose.Types.ObjectId, ref: 'Product'},
+        product: { type: mongoose.Types.ObjectId, ref: 'Product' },
         quantity: Number,
         color: String
     }],
