@@ -223,7 +223,6 @@ const updateCart = asyncHandler(async (req, res) => {
                     updateCart: response ? response : 'Something went wrong'
                 })
             } else {
-
                 const response = await User.updateOne({ cart: { $elemMatch: alreadyProduct } }, { $set: { "cart.$.quantity": +quantity + +alreadyProduct.quantity } }, { new: true })
                 return res.status(200).json({
                     success: response ? true : false,

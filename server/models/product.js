@@ -24,10 +24,6 @@ var productSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    brand: {
-        type: String,
-        required: true,
-    },
     category: {
         type: mongoose.Types.ObjectId,
         ref: 'Category'
@@ -40,15 +36,18 @@ var productSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    thumb:{
+    thumb: {
         type: String,
+        default: 'https://res.cloudinary.com/dlhpuaa9i/image/upload/v1721360253/Remove-bg.ai_1721360236950_mzrsob.png',
     },
     images: {
         type: Array,
+        default: ["https://res.cloudinary.com/dlhpuaa9i/image/upload/v1721360253/Remove-bg.ai_1721360236950_mzrsob.png"],
+
     },
-    color: {
+    sale: {
         type: String,
-        enum: ['Black', 'Grown', 'Red']
+        default: 0
     },
     ratings: [
         {

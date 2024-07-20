@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { fetchUserData } from "@/store/authSilce";
+import { fetchUserData, getCategories } from "@/store/authSilce";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
 import axios from "axios";

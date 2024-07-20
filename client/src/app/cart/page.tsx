@@ -5,7 +5,7 @@ import { AppDispatch, RootState } from '@/store/store';
 import '@/styles/cart.css'
 import { useRouter } from 'next/navigation';
 import { it } from 'node:test';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
@@ -47,7 +47,7 @@ const Cart = () => {
         const total = dataCart?.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
         setSumPrice(total);
     }, [dataCart]);
-    const handleChangeQuantity = async (e, pid: string) => {
+    const handleChangeQuantity = async (e: ChangeEvent<HTMLInputElement>, pid: string) => {
         const value = e.target.value.replace(/\D/g, '');
         const newValue = value === '' ? '0' : value;
         const newQuantity = parseInt(newValue, 10);
@@ -59,7 +59,7 @@ const Cart = () => {
             )
         );
     };
-    const handleBlur = async (e, pid: string) => {
+    const handleBlur = async (e: ChangeEvent<HTMLInputElement>, pid: string) => {
         const cartItem = dataCart.find(item => item.product._id === pid);
         if (cartItem) {
             if (cartItem?.quantity === 0)
@@ -86,9 +86,13 @@ const Cart = () => {
     const deleteCart = async (pid: string) => {
         try {
             const response = await axiosInstance.delete('user/cart', { data: { pid: pid } });
-            // if (response.data.success) {
-                toast.error('Xóa sản phẩn thành công!', { autoClose: 1000 });
-            // }
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Xóa sản phẩm khỏi giỏ hàng thành công",
+                showConfirmButton: false,
+                timer: 1500
+              });
         } catch (error) {
             console.error('Error detele cart:', error);
         }

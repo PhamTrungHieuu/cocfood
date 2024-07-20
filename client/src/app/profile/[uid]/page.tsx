@@ -1,11 +1,10 @@
 'use client'
 import { Container } from "react-bootstrap";
-import '@/styles/userid.css'
+import '@/styles/profileuserid.css'
 import { useEffect, useState } from "react";
 import axiosInstance from "@/axiosConfig";
 import { useParams } from "next/navigation";
 import Swal from "sweetalert2";
-import { toast, ToastContainer } from "react-toastify";
 
 interface User {
     _id: string;
@@ -17,7 +16,7 @@ interface User {
     avatar: string;
 }
 
-const Userid = () => {
+const ProfileUserId = () => {
     const [userData, setUserData] = useState<User | null>(null);
     const [isShowEdit, setIsShowEdit] = useState(false);
     const [isShowEditAvatar, setIsShowEditAvatar] = useState(false);
@@ -267,4 +266,4 @@ const Userid = () => {
     )
 }
 
-export default Userid;
+export default ProfileUserId;

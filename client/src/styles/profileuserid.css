@@ -1,0 +1,147 @@
+.header {
+    height: 50px;
+    width: 100%;
+    border-bottom: 1px solid #f93;
+    text-align: center;
+    align-content: center;
+    font-size: 30px;
+    font-weight: 600;
+    color: #f93;
+}
+
+.profile {
+    width: 65%;
+    margin-top: 40px;
+    border-right: 1px solid #f93;
+}
+
+.profile-box {
+    margin-left: 150px;
+    position: relative;
+    display: flex;
+}
+
+.profile-edit-user {
+    position: absolute;
+    background: #ffffff;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.profile-edit-user-form{
+    border: 1px solid #f93;
+    border-radius: 10px;
+    width: 400px;
+    height: 200px;
+    padding: 10px;
+}
+
+.profile-edit-user-label{
+    font-size: 20px;
+    font-weight: 600;
+    color: #f93;
+        
+}
+.profile-edit-user-ip{
+    margin-top: 20px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #f93;
+    font-size: 18px;
+    padding-left: 10px;
+    align-content: center;
+}
+.profile-edit-user-btn{
+    margin-top: 30px;
+    color: #ffffff;
+    font-weight: bold;
+    width: 100px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #f93;
+}
+.profile-edit-user-btn:hover{
+    background-color: #794816;
+}
+.profile-edit-user-btn-cancel{
+    margin-top: 30px;
+    color: #ffffff;
+    font-weight: bold;
+    width: 100px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: red;
+}
+.profile-edit-user-btn-cancel:hover{
+    background-color: rgb(121, 0, 0);
+}
+.profile-row {
+    display: flex;
+    height: 70px;
+    align-items: center;
+}
+
+.profile-row-lable {
+    width: 100px;
+    text-align: end;
+    margin-right: 100px;
+}
+
+.profile-row-ip {
+    margin-right: 30px;
+}
+
+.profile-row-edit {
+    background: none;
+    color: #f93;
+}
+
+.profile-row-edit:hover {
+    color: rgb(155, 92, 29);
+}
+
+.profile-row-ip-address {
+    max-width: 350px;
+    max-height: 70px;
+    /* Đặt chiều cao tối đa */
+    overflow-y: auto;
+    /* Hiển thị thanh cuộn dọc nếu văn bản tràn */
+    word-wrap: break-word;
+    /* Tự động xuống dòng khi văn bản tràn */
+    box-sizing: border-box;
+    /* Đảm bảo padding được tính vào tổng kích thước phần tử */
+}
+
+.profile-row-ip-address::-webkit-scrollbar {
+    width: 6px;
+    /* Đặt độ rộng của thanh cuộn */
+}
+
+.profile-row-ip-address::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    /* Màu của thanh cuộn */
+    border-radius: 3px;
+    /* Bo góc thanh cuộn */
+}
+
+.profile-row-ip-address::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    /* Màu nền của đường dẫn thanh cuộn */
+}
+
+.profile-img{
+    width: 35%;
+    height: auto;
+}
+.profile-avata{
+    margin-top: 50px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.profile-avata-img{
+    width: 80%;
+}

@@ -31,7 +31,7 @@ const Header: React.FC = () => {
     const [isColorSanPham, setIsColorSanPham] = useState('');
     const [isColorBlog, setIsColorBlog] = useState('');
     const [isColorGioiThieu, setIsColorGioiThieu] = useState('');
-    const userData = useSelector((state: RootState) => state.auth.userData);
+    const userData = localData?.userData
     const [quantityCart, setQuantityCart] = useState(0);
     const [isAdmin, setIsAdmin] = useState(false);
     const [decodedToken, setDecodedToken] = useState<Token | null>(null);
@@ -47,7 +47,7 @@ const Header: React.FC = () => {
         }
     }, [userData])
     useEffect(() => {
-        setIsLoggedIn(localData.isLoggedIn)
+        setIsLoggedIn(localData?.isLoggedIn)
         tokenDecode();
     }, [localData])
     useEffect(() => {
@@ -86,7 +86,7 @@ const Header: React.FC = () => {
         }
     }, [pathname]);
     const tokenDecode = () => {
-        const token = localData.token // Giả sử bạn lưu token trong localStorage    
+        const token = localData?.token // Giả sử bạn lưu token trong localStorage    
         if (token) {
             try {
                 const decoded = jwt.decode(token);
@@ -137,10 +137,20 @@ const Header: React.FC = () => {
     //         Swal.fire("Bạn không phải là admin!");
     //     }
     // }
+    const clickProfileUser = () => {
+        tokenDecode();
+        router.push(`profile/${decodedToken?._id}`)
+    }
     const clickLogout = () => {
         dispatch(logout());
         setIsAdmin(false);
-        toast.success('Đăng xuất thành công!', { autoClose: 1000 });
+        Swal.fire({
+            position: "center",
+            icon: "success",
+            title: `Đăng xuất thành công`,
+            showConfirmButton: false,
+            timer: 1000
+        });
         setIsHovered(false)
     }
     return (
@@ -173,7 +183,7 @@ const Header: React.FC = () => {
                             </div>
                             {isHovered && (
                                 <div className='popup-account'>
-                                    <button className='popup-btn' >Hồ sơ của bạn </button>
+                                    <button className='popup-btn' onClick={() => { clickProfileUser() }}>Hồ sơ của bạn </button>
                                     <button className='popup-btn' onClick={() => clickLogout()} >Đăng xuất </button>
                                 </div>
                             )}

@@ -20,7 +20,7 @@ router.put('/address', [verifyAccessToken], ctrls.updateUserAddress)
 router.put('/cart', [verifyAccessToken], ctrls.updateCart)
 router.delete('/:uid', [verifyAccessToken, isAdmin], ctrls.deleteUser)
 router.get('/:uid', [verifyAccessToken, isAdmin], ctrls.getUserByadmin)
-router.put('/:uid', [verifyAccessToken, isAdmin], ctrls.updateUserByAdmin)
-router.put('/uploadavatar/:uid', [verifyAccessToken, isAdmin], uploader.single('avatar'), ctrls.uploadAvatar)
+router.put('/:uid', [verifyAccessToken], ctrls.updateUserByAdmin)
+router.put('/uploadavatar/:uid', [verifyAccessToken], uploader.single('avatar'), ctrls.uploadAvatar)
 
 module.exports = router

@@ -144,7 +144,7 @@ const uploadImagesProduct = asyncHandler(async (req, res) => {
     if (!req.files) throw new Error('Missing inputs')
     const reponse = await Product.findByIdAndUpdate(pid, { $push: { images: { $each: req.files.map(el => el.path) } } }, { new: true })
     return res.status(200).json({
-        status: reponse ? true : false,
+        success: reponse ? true : false,
         updatedProduct: reponse ? reponse : 'Cannot upload images product'
     })
 })
@@ -153,10 +153,28 @@ const uploadThumbProduct = asyncHandler(async (req, res) => {
     if (!req.file) throw new Error('Missing inputs')
     const reponse = await Product.findByIdAndUpdate(pid, { thumb: req.file.path }, { new: true })
     return res.status(200).json({
-        status: reponse ? true : false,
+        success: reponse ? true : false,
         updatedProduct: reponse ? reponse : 'Cannot upload thumb product'
     })
 })
+const deleteImageProduct = asyncHandler(async (req, res) => {
+    const { pid } = req.params;
+    const { fileImage } = req.body; // Giả sử bạn gửi fileImage cần xóa từ client
+    // Tìm sản phẩm cần cập nhật
+    let product = await Product.findById(pid);
+
+    // Lọc ra mảng images mới không bao gồm fileImage cần xóa
+    product.images = product.images.filter(image => image !== fileImage);
+
+    // Lưu sản phẩm đã cập nhật
+    product = await product.save();
+
+    return res.status(200).json({
+        success: true,
+        updatedProduct: product
+    });
+});
+
 module.exports = {
     createProduct,
     getProduct,
@@ -165,5 +183,6 @@ module.exports = {
     deleteProduct,
     ratings,
     uploadImagesProduct,
-    uploadThumbProduct
+    uploadThumbProduct,
+    deleteImageProduct,
 }

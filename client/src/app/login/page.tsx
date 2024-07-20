@@ -8,7 +8,6 @@ import Swal from 'sweetalert2';
 import { AppDispatch } from '@/store/store';
 import { login } from '@/store/authSilce';
 import { useDispatch } from 'react-redux';
-import { toast, ToastContainer } from 'react-toastify';
 const Login: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
     const router = useRouter()
@@ -67,7 +66,7 @@ const Login: React.FC = () => {
         setIsForgotPassword(!isForgotPassword);
         setEmail('')
     }
-    const clickSubmitResetPassword: MouseEventHandler<HTMLDivElement> = async (event) => {
+    const clickSubmitResetPassword = async () => {
         if (email === '') {
             Swal.fire('Thất bại', 'Không được bỏ trống email!', 'error')
         } else if (!validateEmail(email)) {
@@ -110,7 +109,7 @@ const Login: React.FC = () => {
                                 <div className='d-flex justify-content-between mt-3'>
                                     <div style={{ cursor: 'pointer' }} className="link-secondary link-offset-2 link-underline link-underline-opacity-0 d-flex justify-content-center" onClick={clickForgotPassword} >Quay lại </div>
 
-                                    <button className="btn btn-primary" type="button" onClick={clickSubmitResetPassword}>Submit</button>
+                                    <button className="btn btn-primary" type="button" onClick={() => clickSubmitResetPassword()}>Submit</button>
                                 </div>
                             </div>
                         </div>

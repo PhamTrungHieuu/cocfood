@@ -30,7 +30,6 @@ const Users = () => {
     useEffect(() => {
         getUsers();
     }, []);
-    console.log(userData)
     const deleteUserbtn = async (uid: string) => {
         Swal.fire({
             title: "Xóa tài khoản?",

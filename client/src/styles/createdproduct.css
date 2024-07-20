@@ -1,0 +1,105 @@
+.header {
+    height: 50px;
+    width: 100%;
+    border-bottom: 1px solid #f93;
+    text-align: center;
+    align-content: center;
+    font-size: 30px;
+    font-weight: 600;
+    color: #f93;
+}
+.created-product-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.update-avatar-box{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.update-avatar-btn{
+    margin-top: 30px;
+    color: #ffffff;
+    font-weight: bold;
+    width: 100px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #f93;
+}
+.update-avatar-btn:hover{
+    background-color: #794816;
+}
+.update-avatar-btn-cancel{
+    margin-top: 30px;
+    color: #ffffff;
+    font-weight: bold;
+    width: 100px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: red;
+}
+.update-avatar-btn-cancel:hover{
+    background-color: rgb(121, 0, 0);
+}
+.update-avatar-form{
+    border: 1px solid #f93;
+    border-radius: 10px;
+    width: 400px;
+    /* height: 200px; */
+    padding: 10px;
+}
+.created-product{
+    margin-top: 30px;
+    width: 50%;
+}
+.created-product-row{
+    display: flex;
+    margin-top: 30px;
+}
+.created-product-row-label{
+    height: 30px;
+    align-content: center;
+    width: 30%;
+}
+.created-product-row-ip-box{
+    border: 1px solid #f93;
+    border-radius: 10px;
+    padding: 5px;
+    width: 60%;
+    outline: none;
+    resize: none;
+}
+.created-product-row-ip{
+    width: 100%;
+}
+.created-product-row-ip-box::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.created-product-row-ip-box::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.created-product-row-ip-box::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+.created-product-btn{
+    background-color: #f93;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: bold;
+}
+.created-product-btn:hover{
+    background-color: rgb(137, 82, 27);
+}

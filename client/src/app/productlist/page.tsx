@@ -4,6 +4,9 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Category from '../category/page';
+import { useDispatch } from 'react-redux';
+import { getCategories } from '@/store/authSilce';
+import { AppDispatch } from '@/store/store';
 
 interface Product {
     _id: string,
@@ -14,10 +17,11 @@ interface Product {
     thumb: string;
 }
 const ProductList = () => {
+    const dispatch = useDispatch<AppDispatch>()
     const [popupText, setPopupText] = useState('Mặc định')
     const [isPopupSort, setIsPopupSort] = useState(false)
     const [listProduct, setListProduct] = useState<Product[]>([])
-    useEffect(() => {
+    const getPrducts = async () =>{
         axios.get('http://localhost:5000/api/product')  // Thay thế bằng API thực tế của bạn
             .then(response => {
                 setListProduct(response.data.products);
@@ -25,6 +29,10 @@ const ProductList = () => {
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
+    }
+    useEffect(() => {
+        getPrducts();
+        dispatch(getCategories())
     }, []);
 
     const formatPrice = (price: Number) => {

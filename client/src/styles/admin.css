@@ -4,4 +4,10 @@
     height: 50px;
     align-items: center;
     border-bottom: 1px solid #ddd;
+    font-weight: 800;
+    cursor: pointer;
+
+}
+.admin-menu-text.active {
+    color: #f93;
 }

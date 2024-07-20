@@ -94,7 +94,13 @@ const Product = () => {
         try {
             const response = await axiosInstance.put('user/cart', { pid: pid, quantity: quantity, isInput: isInput });
             if (response.data.success)
-                toast.success('Thêm giỏ hàng thành công!', { autoClose: 1000 });
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: `Thêm sản phẩm thành công`,
+                    showConfirmButton: false,
+                    timer: 1000
+                });
         } catch (error) {
             console.error('Error fetching data:', error);
         }
