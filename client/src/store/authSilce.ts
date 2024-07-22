@@ -1,19 +1,17 @@
 import axiosInstance from '@/axiosConfig';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
+interface Category {
+    _id: string;
+    title: string;
+  }
 interface AuthState {
     isLoggedIn: boolean;
     token: string | null;
     userData: any | null;
-    categories: any | null;
+    categories: Category[] | null;
     isLoading: boolean;
     error: string | null;
-}
-
-interface ApiResponse {
-    success: boolean;
-    prodCategories: any | null; // Cấu trúc thực tế của phản hồi từ API
 }
 
 export const getCategories = createAsyncThunk(
@@ -68,7 +66,7 @@ const initialState: AuthState = {
     isLoggedIn: typeof window !== 'undefined' && !!localStorage.getItem('isLoggedIn'),
     token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
     userData: null,
-    categories: null,
+    categories: [],
     isLoading: false,
     error: null,
 };
@@ -108,7 +106,7 @@ const authSlice = createSlice({
             })
             .addCase(getCategories.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.categories = action.payload;
+                state.categories = action.payload.prodCategories;
             })
             .addCase(getCategories.rejected, (state, action) => {
                 state.isLoading = false;

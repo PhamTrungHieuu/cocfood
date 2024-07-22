@@ -30,7 +30,9 @@ const Productpid = () => {
     const [valueAvatar, setValueAvatar] = useState<File | null>(null);
     const [images, setImages] = useState<File[]>([]);
     const productListRef = useRef<HTMLDivElement>(null);
-
+    const productListImagesRef = useRef<HTMLDivElement>(null);
+    const [thumbPreview, setThumbPreview] = useState<string | null>(null);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const param = useParams();
     const { pid } = param
 
@@ -96,18 +98,45 @@ const Productpid = () => {
         } else
             setValueEdit(value)
     }
-    const handleEditAvatar = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            if (keyEdit === 'thumb') {
-                const files = e.target.files
+    const handleEditThumb = (e: ChangeEvent<HTMLInputElement>) => {
+        if (keyEdit === 'thumb') {
+            const files = e.target.files
+            if (files && files[0]) {
                 setValueAvatar(files[0]);
-            }
-            else {
+                const fileUrl = URL.createObjectURL(files[0]);
+                setThumbPreview(fileUrl);
 
-                const files = Array.from(e.target.files);
-                setImages(files);
+                // Clean up URL object when component unmounts
+                return () => {
+                    if (fileUrl) {
+                        URL.revokeObjectURL(fileUrl);
+                    }
+                };
+            } else {
+                setValueAvatar(null);
+                setThumbPreview(null);
             }
         }
+        else {
+            const files = Array.from(e.target.files || []);
+            setImages(files);
+
+            const fileUrls = files.map(file => URL.createObjectURL(file));
+            setImagePreviews(fileUrls);
+            return () => {
+                fileUrls.forEach(url => URL.revokeObjectURL(url));
+            };
+        }
+    }
+    const onclickDeleteImagePreview = (preview: string) => {
+        const newImagePreviews = imagePreviews.filter(img => img !== preview);
+        const newImages = images.filter((_, index) => URL.createObjectURL(images[index]) !== preview);
+
+        // Revoke the URL object to avoid memory leaks
+        URL.revokeObjectURL(preview);
+
+        setImagePreviews(newImagePreviews);
+        setImages(newImages);
     }
     const btnSubmitEidtProduct = async () => {
         if (valueEdit) {
@@ -261,6 +290,17 @@ const Productpid = () => {
             productListRef.current.scrollBy({ left: 200, behavior: 'smooth' });
         }
     };
+    const scrollLeftImages = () => {
+        if (productListImagesRef.current) {
+            productListImagesRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+        }
+    };
+
+    const scrollRightImages = () => {
+        if (productListImagesRef.current) {
+            productListImagesRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+        }
+    };
     const onclickDeleteImage = (fileImage: string) => {
         Swal.fire({
             title: "Bạn có muốn tiếp tục xóa ảnh?",
@@ -287,7 +327,7 @@ const Productpid = () => {
                         showConfirmButton: false,
                         timer: 1500
                     });
-                }else{
+                } else {
                     Swal.fire({
                         position: "center",
                         icon: "error",
@@ -300,7 +340,7 @@ const Productpid = () => {
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
-            getProducts();
+        getProducts();
     }
     return (
         <div>
@@ -334,8 +374,51 @@ const Productpid = () => {
                                 <div className="profile-product-edit-product-label"> {labelEdit} </div>
                                 <div style={{ marginTop: '30px' }}>
                                     {keyEdit === 'thumb' ?
-                                        <input type="file" className="profile-product-edit-product-avatar" style={{ width: '100%' }} onChange={handleEditAvatar} ></input>
-                                        : <input multiple type="file" className="profile-product-edit-product-avatar" style={{ width: '100%' }} onChange={handleEditAvatar} ></input>
+                                        <div>
+                                            <div className="profile-product-edit-images-ip" >
+                                                <input multiple type="file" style={{ width: '100%' }} onChange={handleEditThumb} ></input>
+                                                Tải ảnh lên
+                                            </div>
+                                            {thumbPreview ? (
+                                                <div className='profile-product-edit-thumb-preview'>
+                                                    <img className='profile-product-edit-thumb-preview-img' src={thumbPreview} alt="Thumb Preview" />
+                                                </div>
+                                            )
+                                                :
+                                                <div className='profile-product-edit-thumb-preview'>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        :
+                                        <div>
+                                            <div className="profile-product-edit-images-ip" >
+                                                <input multiple type="file" style={{ width: '100%' }} onChange={handleEditThumb} ></input>
+                                                Tải ảnh lên
+                                            </div>
+                                            {imagePreviews.length > 0 && (
+                                                <div className="profile-product-images-scroll" >
+
+                                                    <div className="bi bi-arrow-left-circle btn-scroll-left" onClick={scrollLeft}>
+                                                    </div>
+                                                    <div className="bi bi-arrow-right-circle btn-scroll-right" onClick={scrollRight}>
+                                                    </div>
+                                                    <div className="profile-product-images-arr" ref={productListRef}>
+                                                        {imagePreviews.map((preview, index) => (
+                                                            <div style={{ position: 'relative' }}>
+                                                                <div style={{ position: 'absolute', fontWeight: '600', fontSize: '15px', right: '10px', cursor: 'pointer', color: 'red' }} onClick={() => onclickDeleteImagePreview(preview)}> x </div>
+                                                                <img
+                                                                    key={index}
+                                                                    src={preview}
+                                                                    alt={`Image Preview ${index}`}
+                                                                    style={{ maxHeight: '150px', margin: '5px' }}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div >
+                                            )}
+                                        </div>
                                     }
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -373,32 +456,32 @@ const Productpid = () => {
                             </div>
                         </div>
                         <div className="profile-product-img">
-                            <div className="profile-product-avata-box">
-                                <div className="profile-product-avata-lable"> Ảnh đại diện sản phẩm </div>
-                                <div className="profile-product-avata">
-                                    <img className="profile-product-avata-img" src={productData.thumb}></img>
+                            <div className="profile-product-images-box">
+                                <div className="profile-product-images-lable"> Ảnh đại diện sản phẩm </div>
+                                <div className="profile-product-images">
+                                    <img className="profile-product-images-img" src={productData.thumb}></img>
                                 </div>
                                 <button style={{ width: '100%', textAlign: 'center' }} className="profile-product-row-edit" onClick={() => changeAvatarProduct(productData._id, 'thumb', productData.thumb, 'Ảnh đại diện sản phẩm')}> Thay đổi</button>
                             </div>
-                            <div className="profile-product-avata-box">
-                                <div className="profile-product-avata-lable"> Ảnh chi tiết sản phẩm </div>
-                                <div className="profile-product-avata-scroll" >
+                            <div className="profile-product-images-box">
+                                <div className="profile-product-images-lable"> Ảnh chi tiết sản phẩm </div>
+                                <div className="profile-product-images-scroll" >
 
-                                    <div className="bi bi-arrow-left-circle btn-scroll-left" onClick={scrollLeft}>
+                                    <div className="bi bi-arrow-left-circle btn-scroll-left" onClick={scrollLeftImages}>
                                     </div>
-                                    <div className="bi bi-arrow-right-circle btn-scroll-right" onClick={scrollRight}>
+                                    <div className="bi bi-arrow-right-circle btn-scroll-right" onClick={scrollRightImages}>
                                     </div>
 
-                                    <div className="profile-product-avata-arr" ref={productListRef}>
+                                    <div className="profile-product-images-arr" ref={productListImagesRef}>
                                         {productData?.images?.map((image, index) => (
                                             <div style={{ position: 'relative' }}>
                                                 <div style={{ position: 'absolute', fontWeight: '600', fontSize: '15px', right: '10px', cursor: 'pointer', color: 'red' }} onClick={() => onclickDeleteImage(image)}> x </div>
-                                                <img key={index} className="profile-product-avata-img" src={image} alt={`Product ${index}`} />
+                                                <img key={index} className="profile-product-images-img" src={image} alt={`Product ${index}`} />
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                                <button style={{ width: '100%', textAlign: 'center' }} className="profile-product-row-edit" onClick={() => changeAvatarProduct(productData._id, 'images', productData.thumb, 'Ảnh chi tiết sản phẩm')}> Thay đổi</button>
+                                <button style={{ width: '100%', textAlign: 'center' }} className="profile-product-row-edit" onClick={() => changeAvatarProduct(productData._id, 'images', productData.thumb, 'Ảnh chi tiết sản phẩm')}> Thêm ảnh </button>
                             </div>
                         </div>
                     </div>}
