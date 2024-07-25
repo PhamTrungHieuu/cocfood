@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import React from 'react';
 import '@/styles/product.css';
 import axios from "axios";
@@ -15,11 +15,16 @@ interface Product {
     _id: string;
     title: string;
     price: number;
-    slug: string;
+    description: string;
     images: string[];
     totalRatings: number;
     brand: string;
     thumb: string;
+    ratings: [{
+        star: number,
+        comment: string
+    }];
+    sale: number;
 }
 const Product = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -33,38 +38,50 @@ const Product = () => {
     const { pid } = param
     const [quantity, setQuantity] = useState(1);
     const [product, setProduct] = useState<Product | null>(null);
-    useEffect(() => {
-        axios.get(`http://localhost:5000/api/product/?_id=${pid}`)  // Thay thế bằng API thực tế của bạn
+    const [countStar, setCountStar] = useState<number>(5)
+    const [comment, setComment] = useState('')
+    const [isUserBuyProduct, setIsUserBuyProduct] = useState(false)
+
+    const getProduct = () => {
+        axios.get(`http://localhost:5000/api/product/?_id=${pid}`)
             .then(response => {
                 setProduct(response.data.products[0]);
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
+    }
+    const checkUserBuyProduct = async () => {
+        const response = await axiosInstance.get('order/check', { params: { pid: pid } })
+        setIsUserBuyProduct(response.data.success)
+    }
+    useEffect(() => {
+        getProduct()
+        checkUserBuyProduct()
     }, [pid]);
 
-    const handleChangeQuantity = (e) => {
+    const handleChangeQuantity = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, '');
-        setQuantity(value);
+        setQuantity(parseInt(value, 10) || 0);
         if (quantity == null) {
             setQuantity(1)
         }
     }
-    const handleBlur = (e) => {
+    const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.value === '' || parseInt(e.target.value, 10) < 1) {
             setQuantity(1);
         }
     };
-    const handleQuantityTru = (e) => {
+    const handleQuantityTru = () => {
         if (quantity > 1) {
             const value = quantity
             setQuantity(value - 1);
-
         }
     }
-    const handleQuantityCong = (e) => {
+    const handleQuantityCong = () => {
         const value = quantity
         setQuantity(value + 1);
+        console.log(value + 1)
     }
     const formatPrice = (price: Number) => {
         return price.toLocaleString('vi-VN');
@@ -105,6 +122,32 @@ const Product = () => {
             console.error('Error fetching data:', error);
         }
     }
+    const handleClickStar = (index: number) => {
+        setCountStar(index);
+    };
+    const handleComment = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        const value = e.target.value
+        setComment(value);
+    };
+    const clickHanleRatings = async (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const payload = {
+            star: countStar,
+            comment: comment,
+            pid: pid
+        }
+        const reponse = await axiosInstance.put('http://localhost:5000/api/product/ratings', payload)
+        if (reponse.data?.success) {
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Đánh giá thành công",
+                showConfirmButton: false,
+                timer: 1000
+            });
+            getProduct()
+        }
+    }
     return (
         <div>
 
@@ -120,11 +163,22 @@ const Product = () => {
                             <div className="detail-product-trademark-text"> {product?.brand} </div>
                         </div>
                         <div className="detail-product-price">
-                            <div className="detail-product-price-number">{product ? formatPrice(product.price) : ''}</div>
-                            <div className="detail-product-price-icon">₫</div>
+                            {product?.sale == 0 ?
+                                <div style={{ display: 'flex' }} >
+                                    <div className="detail-product-price-number">{product ? formatPrice(product.price) : ''}</div>
+                                    <div className="detail-product-price-icon">₫</div>
+                                </div>
+                                :
+                                <div style={{ display: 'flex' }}>
+                                    <div className="detail-product-price-number">{product ? formatPrice(product.price * (1 - product.sale / 100)) : ''}</div>
+                                    <div className="detail-product-price-icon">₫</div>
+                                    <div className="detail-product-price-sale">{product ? formatPrice(product.price) : ''}</div>
+                                    <div className="detail-product-price-sale">₫</div>
+                                </div>
+                            }
                         </div>
                         <div className="detail-product-describe"> Mô tả sản phẩm </div>
-                        <div className="detail-product-describe-text"> {product?.slug} </div>
+                        <div className="detail-product-describe-text"> {product?.description} </div>
                         <div className="detail-option">
                             <div className="detail-option-quantity">
                                 <div className="detail-option-quantity-change">
@@ -151,8 +205,77 @@ const Product = () => {
                         </div>
                     </div>
                 </div>
+                <div className="product-ratings-box">
+                    <div className="product-ratings">
+                        <div className="product-start-all">
+                            Tổng đánh giá:
+                            <div className="product-evluate">
+                                <div className="star-rating">
+                                    <div className="stars" style={{ width: `${((product?.totalRatings ? product?.totalRatings : 0) / 5) * 100}%` }}>
+                                        ★★★★★
+                                    </div>
+                                    <div className="star-overlay">★★★★★</div>
+                                </div>
+                            </div>
+                        </div>
+                        <form className="product-form-ratings" onSubmit={clickHanleRatings}>
+                            <div className="product-form-ratings-star">
+                                <div className="product-form-ratings-star-label">
+                                    Chất lượng sản phẩm:
+                                </div>
+                                <div className=''>
+                                    {Array.from({ length: 5 }, (_, index) => (
+                                        <span
+                                            key={index}
+                                            className={index < countStar ? 'starFilled' : 'star'}
+                                            onClick={() => handleClickStar(index + 1)}
+                                        >
+                                            ★
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="product-form-ratings-input">
+                                <textarea
+                                    className='product-form-ratings-input-text'
+                                    rows={5} // Bạn có thể điều chỉnh số lượng hàng mặc định theo nhu cầu của mình
+                                    onChange={(e) => handleComment(e)}
+                                    value={comment}
+                                    placeholder="Nhập comment..."
+                                ></textarea>
+                            </div>
+                            <button type="submit" className="product-form-ratings-btn" disabled={!isUserBuyProduct} >Đánh giá</button>
+                        </form>
+
+                    </div>
+                    <div className="product-ratings-list-box">
+                        <div className="product-ratings-list-label">
+                            Danh sách đánh giá
+                        </div>
+                        <div className="product-ratings-list">
+                            {product?.ratings && product?.ratings.map((rating, index) => (
+
+                                <div className="product-rating-list-star-comment" key={index}>
+                                    <div className="product-rating-list-star">
+                                        {Array.from({ length: 5 }, (_, index) => (
+                                            <span
+                                                key={index}
+                                                className={index < rating.star ? 'starFilled' : 'star'}
+                                            >
+                                                ★
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="product-rating-list-comment">
+                                        Comment: {rating.comment}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <ToastContainer />
         </div>
     )
 }

@@ -7,6 +7,8 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Container } from "react-bootstrap";
 import Swal from "sweetalert2";
 import '@/styles/productpid.css'
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 interface Product {
     _id: string,
     title: string;
@@ -17,6 +19,7 @@ interface Product {
     thumb: string;
     sale: number;
     description: string;
+    category: string;
 }
 const Productpid = () => {
 
@@ -33,6 +36,7 @@ const Productpid = () => {
     const productListImagesRef = useRef<HTMLDivElement>(null);
     const [thumbPreview, setThumbPreview] = useState<string | null>(null);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const categories = useSelector((state: RootState) => state.auth.categories);
     const param = useParams();
     const { pid } = param
 
@@ -97,6 +101,10 @@ const Productpid = () => {
             setValueEdit(numericValue.toString());
         } else
             setValueEdit(value)
+    }
+    const handleEditCategory = (e: ChangeEvent<HTMLSelectElement>) => {
+        let value = e.target.value
+        setValueEdit(value)
     }
     const handleEditThumb = (e: ChangeEvent<HTMLInputElement>) => {
         if (keyEdit === 'thumb') {
@@ -358,10 +366,28 @@ const Productpid = () => {
                                         onChange={(e) => handleEdit}
                                         value={valueEdit}
                                         rows={10} // Bạn có thể điều chỉnh số lượng hàng mặc định theo nhu cầu của mình
-                                    ></textarea> :
-                                    <div className="profile-product-edit-product-ip">
-                                        <input className="profile-product-edit-product-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={valueEdit}></input>
-                                    </div>
+                                    ></textarea>
+                                    : keyEdit === 'category' ?
+                                        <div >
+                                            <select
+                                                className="profile-product-row-select"
+                                                value={valueEdit}
+                                                onChange={handleEditCategory}
+                                            >
+                                                <option value="" disabled>
+                                                    {valueEdit ? valueEdit : 'Phân loại'}
+                                                </option>
+                                                {categories ? categories.map((cat) => (
+                                                    <option key={cat._id} value={cat.title}>
+                                                        {cat.title}
+                                                    </option>
+                                                )) : []}
+                                            </select>
+                                        </div>
+                                        :
+                                        <div className="profile-product-edit-product-ip">
+                                            <input className="profile-product-edit-product-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={valueEdit}></input>
+                                        </div>
                                 }
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <button className="profile-product-edit-product-btn-cancel" onClick={btnCancel}>Quay lại</button>
@@ -445,6 +471,11 @@ const Productpid = () => {
                                 <button className="profile-product-row-edit" onClick={() => changeProduct(productData._id, 'description', productData.description, 'Mô tả')}> Thay đổi</button>
                             </div>
                             <div className="profile-product-row">
+                                <div className="profile-product-row-lable"> Danh mục: </div>
+                                <div className="profile-product-row-ip profile-product-row-ip-description"> {productData.category} </div>
+                                <button className="profile-product-row-edit" onClick={() => changeProduct(productData._id, 'category', productData.category, 'Danh mục')}> Thay đổi</button>
+                            </div>
+                            <div className="profile-product-row">
                                 <div className="profile-product-row-lable"> Giá: </div>
                                 <div className="profile-product-row-ip"> {formatPrice(productData.price)}đ </div>
                                 <button className="profile-product-row-edit" onClick={() => changeProduct(productData._id, 'price', productData.price.toString(), 'Giá')}> Thay đổi</button>
@@ -463,7 +494,7 @@ const Productpid = () => {
                                 </div>
                                 <button style={{ width: '100%', textAlign: 'center' }} className="profile-product-row-edit" onClick={() => changeAvatarProduct(productData._id, 'thumb', productData.thumb, 'Ảnh đại diện sản phẩm')}> Thay đổi</button>
                             </div>
-                            <div className="profile-product-images-box">
+                            {/* <div className="profile-product-images-box">
                                 <div className="profile-product-images-lable"> Ảnh chi tiết sản phẩm </div>
                                 <div className="profile-product-images-scroll" >
 
@@ -482,7 +513,7 @@ const Productpid = () => {
                                     </div>
                                 </div>
                                 <button style={{ width: '100%', textAlign: 'center' }} className="profile-product-row-edit" onClick={() => changeAvatarProduct(productData._id, 'images', productData.thumb, 'Ảnh chi tiết sản phẩm')}> Thêm ảnh </button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>}
                 </div>

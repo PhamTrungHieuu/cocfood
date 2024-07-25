@@ -162,7 +162,7 @@ const ProfileUserId = () => {
                 if (response.data.success) {
                     Swal.fire({
                         position: "center",
-                        icon: "error",
+                        icon: "success",
                         title: `Thay đổi ${labelEdit} thành công`,
                         showConfirmButton: false,
                         timer: 1500

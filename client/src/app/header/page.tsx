@@ -1,21 +1,22 @@
 'use client';
 import '@/styles/header.css';
 import Link from 'next/link';
-import { use, useEffect, useState } from 'react';
+import { ChangeEvent, use, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
-import { logout } from '@/store/authSilce';
+import { AppDispatch, RootState } from '@/store/store';
+import { fetchUserData, logout } from '@/store/authSilce';
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { toast, ToastContainer } from 'react-toastify';
+import { useAppContext } from '@/context/Appcontext';
 interface Token extends JwtPayload {
     _id: string;
     role: string;
 }
 const Header: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const localData = useSelector((state: RootState) => state.auth);
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const pathname = usePathname();
@@ -29,13 +30,15 @@ const Header: React.FC = () => {
     const [isVisible, setIsVisible] = useState(true);
     const [isColorTrangChu, setIsColorTrangChu] = useState('active');
     const [isColorSanPham, setIsColorSanPham] = useState('');
-    const [isColorBlog, setIsColorBlog] = useState('');
+    const [isColorOrder, setIsColorOrder] = useState('');
     const [isColorGioiThieu, setIsColorGioiThieu] = useState('');
     const userData = localData?.userData
     const [quantityCart, setQuantityCart] = useState(0);
     const [isAdmin, setIsAdmin] = useState(false);
     const [decodedToken, setDecodedToken] = useState<Token | null>(null);
     const [isHovered, setIsHovered] = useState(false);
+    const [valueSearch, setValueSearch] = useState('');
+    const { setSearchTerm } = useAppContext();
     useEffect(() => {
         tokenDecode();
     }, [])
@@ -50,6 +53,10 @@ const Header: React.FC = () => {
         setIsLoggedIn(localData?.isLoggedIn)
         tokenDecode();
     }, [localData])
+    useEffect(() => {
+        dispatch(fetchUserData());
+    }, [dispatch]);
+
     useEffect(() => {
         const interval = setInterval(() => {
             setIsVisible(false);
@@ -66,23 +73,30 @@ const Header: React.FC = () => {
         if (pathname === '/') {
             setIsColorTrangChu('active');
             setIsColorSanPham('');
-            setIsColorBlog('');
+            setIsColorOrder('');
             setIsColorGioiThieu('');
         } else if (pathname === '/productlist') {
             setIsColorTrangChu('');
             setIsColorSanPham('active');
-            setIsColorBlog('');
+            setIsColorOrder('');
             setIsColorGioiThieu('');
-        } else if (pathname === '/blog') {
+        } else if (pathname === '/order') {
             setIsColorTrangChu('');
             setIsColorSanPham('');
-            setIsColorBlog('active');
+            setIsColorOrder('active');
             setIsColorGioiThieu('');
         } else if (pathname === '/about') {
             setIsColorTrangChu('');
             setIsColorSanPham('');
-            setIsColorBlog('');
+            setIsColorOrder('');
             setIsColorGioiThieu('active');
+        }
+        else {
+            setIsColorTrangChu('');
+            setIsColorSanPham('');
+            setIsColorOrder('');
+            setIsColorGioiThieu('');
+
         }
     }, [pathname]);
     const tokenDecode = () => {
@@ -153,20 +167,30 @@ const Header: React.FC = () => {
         });
         setIsHovered(false)
     }
+    const hanleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value
+        setValueSearch(value)
+        setSearchTerm(value)
+    }
+    const clickSearch = (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setSearchTerm(valueSearch)
+        // router.push('/productlist')
+    }
     return (
         <div className='header-box'>
             <div className="header-logo">
                 <img className='header-logo-img' src="https://res.cloudinary.com/dlhpuaa9i/image/upload/v1720405970/Orange_and_Blue_Illustrative_Circle_Food_Logo_bmgqyj.png" alt="Logo" />
             </div>
             <div className="header-search">
-                <div className='header-search-ip'>
-                    <input className='header-search-ip-text' placeholder='Tìm kiếm sản phẩm...' />
-                    <button className='header-search-btn bi bi-search'></button>
-                </div>
+                <form className='header-search-ip' onSubmit={clickSearch}>
+                    <input className='header-search-ip-text' placeholder='Tìm kiếm sản phẩm...' value={valueSearch} onChange={hanleSearch} />
+                    <button className='header-search-btn bi bi-search' type='submit'></button>
+                </form>
                 <div className='header-link'>
                     <Link className={`header-link-text ${isColorTrangChu}`} href={'/'}>Trang chủ</Link>
                     <Link className={`header-link-text ${isColorSanPham}`} href={'/productlist'}>Sản phẩm</Link>
-                    <Link className={`header-link-text ${isColorBlog}`} href={'/blog'}>Blog</Link>
+                    <Link className={`header-link-text ${isColorOrder}`} href={'/order'}> Đơn hàng </Link>
                     <Link className={`header-link-text ${isColorGioiThieu}`} href={'/about'}>Giới thiệu</Link>
                 </div>
             </div>

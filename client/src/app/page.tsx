@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { fetchUserData, getCategories } from "@/store/authSilce";
+import { fetchUserData} from "@/store/authSilce";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
 import axios from "axios";
@@ -15,6 +15,7 @@ interface Product {
   images: string[];
   totalRatings: number;
   thumb: string;
+  sale:number;
 }
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>(); // Sử dụng kiểu AppDispatch
@@ -23,7 +24,7 @@ export default function Home() {
   const productListRef = useRef<HTMLDivElement>(null);
 
   const getProducts = () => {
-    axios.get('http://localhost:5000/api/product')  // Thay thế bằng API thực tế của bạn
+    axios.get('http://localhost:5000/api/product/?sale[gt]=0')  // Thay thế bằng API thực tế của bạn
       .then(response => {
         setProducts(response.data.products);
       })
@@ -62,13 +63,13 @@ export default function Home() {
   };
   const scrollLeft = () => {
     if (productListRef.current) {
-      productListRef.current.scrollBy({ left: -600, behavior: 'smooth' });
+      productListRef.current.scrollBy({ left: -248, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     if (productListRef.current) {
-      productListRef.current.scrollBy({ left: 600, behavior: 'smooth' });
+      productListRef.current.scrollBy({ left: 248, behavior: 'smooth' });
     }
   };
   return (
@@ -95,7 +96,7 @@ export default function Home() {
           < div className="flast-sale" >
             <div className="time-flast-sale" >
               <div className="time-flast-sale-text">
-               Ăn THẢ GA - KHÔNG LO VỀ GIÁ
+                Ăn THẢ GA - KHÔNG LO VỀ GIÁ
               </div>
               <div className="time-sale"> {formatTimeHour(timeLeft)}
                 <div className="time-sale-label">Giờ </div>
@@ -116,21 +117,36 @@ export default function Home() {
             <div className="productlist" ref={productListRef}>
               {products.map((product, index) => (
                 <Link className='product-item-sale' href={`/productlist/${product._id}`} key={index}>
+                  {product.sale != 0 && <div className='product-item-sales'> giảm {product.sale}% </div>}
                   <div className='bi bi-heart-fill icon-like'></div>
                   <div className='productList-product-img'>
                     <img className='productList-product-image' src={product.thumb} />
                   </div>
-                  <div className='productlist-name'>{'ga ran'}</div>
-                  <div className="productlist-price">
-                    <div className="productlist-price-number">{formatPrice(product.price)}</div>
-                    <div className="productlist-price-icon">₫</div>
-                    <div className="product-evluate">
-                      <div className="star-rating">
-                        <div className="stars" style={{ width: `${(product.totalRatings / 5) * 100}%` }}>
-                          ★★★★★
-                        </div>
-                        <div className="star-overlay">★★★★★</div>
+                  <div className='productlist-name'>{product.title}</div>
+                  {product.sale == 0 ?
+                                <div className="productlist-price">
+                                    <div className="productlist-price-number">{formatPrice(product.price)}</div>
+                                    <div className="productlist-price-icon">₫</div>
+                                </div>
+                                :
+                                <div style={{ display: 'flex' }}>
+                                    <div className="productlist-price">
+                                        <div className="productlist-price-number">{formatPrice(product.price * (1 - product.sale / 100))}</div>
+                                        <div className="productlist-price-icon">₫</div>
+                                    </div>
+                                    <div className="productlist-price">
+                                        <div className="productlist-price-sales">{formatPrice(product.price)}</div>
+                                        <div className="productlist-price-sales">₫</div>
+                                    </div>
+                                </div>
+
+                            }
+                  <div className="product-evluate">
+                    <div className="star-rating">
+                      <div className="stars" style={{ width: `${(product.totalRatings / 5) * 100}%` }}>
+                        ★★★★★
                       </div>
+                      <div className="star-overlay">★★★★★</div>
                     </div>
                   </div>
                   {/* </div> */}

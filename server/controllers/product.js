@@ -6,12 +6,12 @@ const slugify = require('slugify')
 
 
 const createProduct = asyncHandler(async (req, res) => {
-    if (Object.keys(req.body).length === 0 || !req.files['thumb'] || !req.files['images']) throw new Error('Missing inputs')
+    if (Object.keys(req.body).length === 0 || !req.files['thumb'] ) throw new Error('Missing inputs')
     if (req.body && req.body.title) {
         req.body.slug = slugify(req.body.title)
     }
     req.body.thumb = req.files['thumb'][0].path;
-    req.body.images = req.files['images'].map((file) => file.path); // or filenames if you're saving the files to disk
+    // req.body.images = req.files['images'].map((file) => file.path);  or filenames if you're saving the files to disk
     const newProduct = await Product.create(req.body)
     return res.status(200).json({
         success: newProduct ? true : false,
@@ -137,7 +137,7 @@ const ratings = asyncHandler(async (req, res) => {
 
     await updatedProduct.save();
     return res.status(200).json({
-        status: true,
+        success: true,
         updatedProduct
     })
 })

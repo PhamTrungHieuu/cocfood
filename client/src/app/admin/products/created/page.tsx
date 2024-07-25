@@ -66,9 +66,9 @@ const CreatedProduct = () => {
         else if (thumb === null) {
             showSwalNull('Không được để trống ảnh đại diện sản phẩm')
         }
-        else if (images.length === 0) {
-            showSwalNull('Không được để trống ảnh chi tiết sản phẩm')
-        }
+        // else if (images.length === 0) {
+        //     showSwalNull('Không được để trống ảnh chi tiết sản phẩm')
+        // }
         else {
             let timerInterval: NodeJS.Timeout;
             Swal.fire({
@@ -269,10 +269,10 @@ const CreatedProduct = () => {
                                     onChange={handleCategori}
                                 >
                                     <option value="" disabled>
-                                        {category ? categories ? categories.find(cat => cat._id === category)?.title : [] || 'Phân loại' : 'Phân loại'}
+                                        {category ? category : 'Phân loại'}
                                     </option>
                                     {categories ? categories.map((cat: Category) => (
-                                        <option key={cat._id} value={cat._id}>
+                                        <option key={cat._id} value={cat.title}>
                                             {cat.title}
                                         </option>
                                     )) : []}
@@ -305,7 +305,7 @@ const CreatedProduct = () => {
                                     </div>
                                 }
                             </div>
-                            <div className='create-product-images'>
+                            {/* <div className='create-product-images'>
                                 <div className='create-product-images-label'> Ảnh chi tiết sản phẩm </div>
                                 <div className="create-product-images-ip" >
                                     <input multiple type="file" style={{ width: '100%' }} onChange={handleImages} ></input>
@@ -320,10 +320,10 @@ const CreatedProduct = () => {
                                         </div>
                                         <div className="create-product-images-arr" ref={productListRef}>
                                             {imagePreviews.map((preview, index) => (
-                                                <div style={{ position: 'relative' }}>
+                                                <div key={index} style={{ position: 'relative' }}>
                                                     <div style={{ position: 'absolute', fontWeight: '600', fontSize: '15px', right: '10px', cursor: 'pointer', color: 'red' }} onClick={() => onclickDeleteImage(preview)}> x </div>
                                                     <img
-                                                        key={index}
+                                                        // key={index}
                                                         src={preview}
                                                         alt={`Image Preview ${index}`}
                                                         style={{ maxHeight: '150px', margin: '5px' }}
@@ -333,7 +333,7 @@ const CreatedProduct = () => {
                                         </div>
                                     </div >
                                 )}
-                            </div>
+                            </div> */}
                         </div>
                     </div >
                 </form>

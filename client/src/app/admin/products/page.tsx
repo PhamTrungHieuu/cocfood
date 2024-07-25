@@ -63,12 +63,12 @@ const Products = () => {
         getProducts();
     }
     return (
-        <div>
+        <div style={{ minHeight: '500px' }}>
 
             <Link href={`/admin/products/created`}>
                 <Button variant="success" size="lg" className="me-2 mt-2">Tạo sản phẩm mới </Button>
             </Link>
-            <table className="table table-striped">
+            {productData?.length > 0 ? <table className="table table-striped">
                 <thead>
                     <tr className="text-center align-middle">
                         <th scope="col">#</th>
@@ -80,7 +80,7 @@ const Products = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {productData?.length > 0 ? productData.map((product, index) => (
+                    {productData?.length > 0 && productData.map((product, index) => (
                         <tr key={product?._id} className="text-center align-middle">
                             <th scope="row">{index + 1}</th>
                             <td>
@@ -96,14 +96,13 @@ const Products = () => {
                                 <Button variant="danger" size="sm" onClick={() => deleteProductbtn(product._id)}>Delete</Button>
                             </td>
                         </tr>
-                    )) : (
-                        <tr className="text-center align-middle">
-                            <td >No users found</td>
-                        </tr>
-                    )}
+                    ))}
 
                 </tbody>
             </table>
+                :
+                <div style={{ height: '100%', textAlign: 'center', color: '#f93', fontSize: '25px', paddingTop: '100px' }}> Không có sản phẩm nào!</div>
+            }
         </div>
 
     );

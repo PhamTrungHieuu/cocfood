@@ -2,7 +2,8 @@ const router = require('express').Router()
 const ctrls = require('../controllers/order')
 const { verifyAccessToken, isAdmin } = require('../middlewares/verifyToken')
 router.post('/', verifyAccessToken, ctrls.createOrder)
-router.get('/',verifyAccessToken, ctrls.getUserOrder)
+router.get('/', verifyAccessToken, ctrls.getUserOrder)
+router.get('/check', verifyAccessToken, ctrls.checkUserOrderProduct)
 
 router.get('/admin', [verifyAccessToken, isAdmin], ctrls.getOrders)
 

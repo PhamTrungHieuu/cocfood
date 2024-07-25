@@ -4,22 +4,21 @@ const Coupon = require('../models/coupon')
 const asyncHandler = require('express-async-handler')
 
 const createOrder = asyncHandler(async (req, res) => {
-    const { _id} = req.user
-    const {coupon} = req.body
-    const userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price')
-    const products = userCart?.cart?.map(el =>({
+    const { _id } = req.user
+    const { coupon } = req.body
+    const userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price sale')
+    const products = userCart?.cart?.map(el => ({
         product: el.product._id,
         count: el.quantity,
-        color: el.color
     }))
-    let total = userCart?.cart?.reduce((sum, el) => el.product.price * el.quantity + sum ,0)
-    const createData = {products, total, orderBy: _id}
-    if(coupon){
+    let total = userCart?.cart?.reduce((sum, el) => el.product.price * (1 - el.product.sale / 100) * el.quantity + sum, 0)
+    const createData = { products, total, orderBy: _id }
+    if (coupon) {
         const selectedCoupon = await Coupon.findById(coupon)
-        total = Math.round( total * (1 - +selectedCoupon.discount/100) /1000)*1000 || total
+        total = Math.round(total * (1 - +selectedCoupon.discount / 100) / 1000) * 1000 || total
         createData.total = total
         createData.coupon = coupon
-    }    
+    }
     const rs = await Order.create(createData)
     return res.json({
         success: rs ? true : false,
@@ -27,33 +26,51 @@ const createOrder = asyncHandler(async (req, res) => {
     })
 })
 const updateStatus = asyncHandler(async (req, res) => {
-    const {oid} = req.params
-    const {status} = req.body
-    if(!status) throw new Error('Missing status')
-    const response = await Order.findByIdAndUpdate(oid, {status}, {new : true})
+    const { oid } = req.params
+    const { status } = req.body
+    if (!status) throw new Error('Missing status')
+    const response = await Order.findByIdAndUpdate(oid, { status }, { new: true })
     return res.json({
         success: response ? true : false,
         response: response ? response : 'Something went wrong'
     })
 })
 const getUserOrder = asyncHandler(async (req, res) => {
-    const {_id} = req.user
-    const response = await Order.find({orderBy: _id})
+    const { _id } = req.user
+    const { status } = req.query
+    if (!status) throw new Error('Missing status')
+    const response = await Order.find({ orderBy: _id, status }).populate('products.product', 'title thumb').populate('orderBy', 'firstname lastname')
     return res.json({
         success: response ? true : false,
         response: response ? response : 'Something went wrong'
     })
 })
 const getOrders = asyncHandler(async (req, res) => {
-    const response = await Order.find()
+    const { status } = req.query
+    if (!status) throw new Error('Missing status')
+    const response = await Order.find({status}).populate('products.product', 'title thumb').populate('orderBy', 'firstname lastname')
     return res.json({
         success: response ? true : false,
         response: response ? response : 'Something went wrong'
+    })
+})
+const checkUserOrderProduct = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const { pid } = req.query
+    if (!pid) throw new Error('Missing status')
+    const response = await Order.findOne({
+        orderBy: _id,
+        status: 'Succeed',
+        'products.product': pid
+    });
+    return res.json({
+        success: response ? true : false,
     })
 })
 module.exports = {
     createOrder,
     updateStatus,
     getUserOrder,
-    getOrders
+    getOrders,
+    checkUserOrderProduct,
 }

@@ -8,6 +8,7 @@ import { Provider } from "react-redux";
 import store, { AppDispatch, persistor } from '../store/store';
 import { ReactNode, useEffect } from "react";
 import { PersistGate } from "redux-persist/integration/react";
+import { AppProvider } from '@/context/Appcontext';
 const inter = Inter({ subsets: ["latin"] });
 
 interface RootLayoutProps {
@@ -18,15 +19,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en">
       <body>
         <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <div style={{ height: '120px', position: 'relative', zIndex: '1000' }}>
-              <Header></Header>
-            </div>
-            {children}
-            <footer>
-              hahaha
-            </footer>
-          </PersistGate>
+          <AppProvider>
+
+            <PersistGate loading={null} persistor={persistor}>
+              <div style={{ height: '120px', position: 'relative', zIndex: '1000' }}>
+                <Header></Header>
+              </div>
+              {children}
+              <footer>
+                hahaha
+              </footer>
+            </PersistGate>
+          </AppProvider>
         </Provider>
       </body>
     </html>

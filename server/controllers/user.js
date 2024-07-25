@@ -240,7 +240,7 @@ const updateCart = asyncHandler(async (req, res) => {
 })
 const getCart = asyncHandler(async (req, res) => {
     const { _id } = req.user
-    const userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price thumb')
+    const userCart = await User.findById(_id).select('cart').populate('cart.product', 'title price thumb sale')
     return res.status(200).json({
         success: userCart ? true : false,
         dataCart: userCart ? userCart : 'Chưa có sản phẩm'
@@ -251,6 +251,16 @@ const deleteCart = asyncHandler(async (req, res) => {
     const { pid } = req.body
     const userCart = await User.findById(_id);
     userCart.cart = userCart.cart.filter(item => item.product._id.toString() !== pid);
+    await userCart.save();
+    return res.status(200).json({
+        success: userCart ? true : false,
+        deleteCart: userCart ? userCart : 'Lỗi xóa sản phẩm'
+    })
+})
+const deleteAllCart = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const userCart = await User.findById(_id);
+    userCart.cart = [];
     await userCart.save();
     return res.status(200).json({
         success: userCart ? true : false,
@@ -284,5 +294,6 @@ module.exports = {
     finalRegister,
     getCart,
     deleteCart,
+    deleteAllCart,
     uploadAvatar,
 }

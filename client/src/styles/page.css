@@ -53,6 +53,7 @@
     margin-right: 20px;
     border-radius: 20px;
     position: relative;
+    padding: 0 20px;
 }
 
 .time-flast-sale {
@@ -136,20 +137,45 @@
 .btn-scroll-left:hover,.btn-scroll-right:hover{
     transform: scale(1.1);
 }
-.productlist {
+.productlist{
     padding-top: 30px;
     display: flex;
-    /* flex-wrap: wrap; */
-    /* justify-content: space-between; */
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     position: relative;
+    width: 100%; /* Đảm bảo container chiếm toàn bộ chiều rộng của phần tử chứa */
+    box-sizing: border-box;
 }
-
+.product-item-sales{
+    width: 60px;
+    height: 25px;
+    background-color: #f93;
+    position: absolute;
+    top: 10px;
+    left: -5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+    align-content: center;
+}
+.product-item-sales::after {
+    content: '';
+    position: absolute;
+    bottom: -9px; /* Đặt vị trí của mũi tên */
+    left: 0; /* Đặt mũi tên ở góc bên trái */
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 0 solid transparent;
+    border-top: 10px solid rgb(255, 128, 0); /* Màu nền của mũi tên */
+  }
 .product-item-sale {
     position: relative;
-    min-width: 27%;
-    height: 250px;
+    min-width: 30%;
+    width: 30%;
+    height: 270px;
     background-color: #ffffff;
     margin-bottom: 30px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -160,9 +186,14 @@
     text-decoration: none;
     color: inherit;
     margin-left: 20px;
-    overflow: hidden;
-}
 
+}
+.productlist-price-sales {
+    font-size: 18px;
+    font-weight: 300;
+    color: #959595;
+    text-decoration: line-through;
+}
 .icon-like {
     position: absolute;
     /* Định vị tuyệt đối */
@@ -205,7 +236,7 @@
 .productlist-name {
     padding: 15px 0;
     width: 80%;
-    padding-left: 5px;
+    padding-left: 15px;
     font-size: 16px;
     font-weight: 300;
     overflow: hidden;
@@ -248,7 +279,7 @@
     display: inline-block;
     font-size: 20px;
     line-height: 1;
-    left: 40%;
+    left: 10px;
 }
 
 .stars {

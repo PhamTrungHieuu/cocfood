@@ -1,0 +1,19 @@
+.status-handle-box{
+    position: relative;
+    width: 70px;
+}
+.status-handle{
+    position: absolute;
+    background-color: #ddd;
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 10;
+}
+.status-handle-text{
+    padding: 10px;
+    cursor: pointer;
+}
+.status-handle-text:hover{
+    background-color: #f93;
+}

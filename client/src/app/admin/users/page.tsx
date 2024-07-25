@@ -50,7 +50,7 @@ const Users = () => {
             }
         });
     }
-    const deleteUser = async(uid :string) => {
+    const deleteUser = async (uid: string) => {
         try {
             const response = await axiosInstance.delete(`user/${uid}`);
             setUserData(response.data.users);
@@ -60,36 +60,42 @@ const Users = () => {
         getUsers();
     }
     return (
-        <table className="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Tên tài khoản</th>
-                    <th scope="col" className="text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {userData?.length > 0 ? userData.map((user, index) => (
-                    <tr key={user?._id}>
-                        <th scope="row">{index + 1}</th>
-                        <td>{user.firstname}</td>
-                        <td>{user.lastname}</td>
-                        <td>{user.email}</td>
-                        <td className="text-center">
-                            <Link href = {`/admin/users/${user?._id}`} ><Button variant="primary" size="sm" className="me-2">Edit</Button>
-                            </Link>
-                            <Button variant="danger" size="sm" onClick={() => deleteUserbtn(user._id)}>Delete</Button>
-                        </td>
-                    </tr>
-                )) : (
+        <div style={{ minHeight: '500px' }}>
+
+            {userData?.length > 0 ? <table className="table table-striped">
+                <thead>
                     <tr>
-                        <td className="text-center">No users found</td>
+                        <th scope="col">#</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Tên tài khoản</th>
+                        <th scope="col" className="text-center">Action</th>
                     </tr>
-                )}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {userData?.length > 0 ? userData.map((user, index) => (
+                        <tr key={user?._id}>
+                            <th scope="row">{index + 1}</th>
+                            <td>{user.firstname}</td>
+                            <td>{user.lastname}</td>
+                            <td>{user.email}</td>
+                            <td className="text-center">
+                                <Link href={`/admin/users/${user?._id}`} ><Button variant="primary" size="sm" className="me-2">Edit</Button>
+                                </Link>
+                                <Button variant="danger" size="sm" onClick={() => deleteUserbtn(user._id)}>Delete</Button>
+                            </td>
+                        </tr>
+                    )) : (
+                        <tr>
+                            <td className="text-center">No users found</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+                :
+                <div style={{ height: '100%', textAlign: 'center', color: '#f93', fontSize: '25px', paddingTop: '100px' }}> Không có User nào!</div>
+            }
+        </div>
     );
 };
 
