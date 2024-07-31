@@ -1,7 +1,7 @@
 'use client'
 import '@/styles/admin.css'
 import Processing from './status/page';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import Status from './status/page';
 const OrderAdmin = () => {
@@ -12,14 +12,14 @@ const OrderAdmin = () => {
         setActiveMenu(menu);
         if (menu === 'Processing') {
             setNavagateAdmin(<Status status="Processing" ></Status>)
-        }else if(menu === 'Succeed'){
+        } else if (menu === 'Succeed') {
             setNavagateAdmin(<Status status="Succeed" ></Status>)
         }
-        else if(menu === 'Cancelled'){
+        else if (menu === 'Cancelled') {
             setNavagateAdmin(<Status status="Cancelled" ></Status>)
         }
     };
-
+    
     return (
         <div>
             <Container>

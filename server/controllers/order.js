@@ -1,5 +1,6 @@
 const Order = require('../models/order')
 const User = require('../models/user')
+const Product = require('../models/product')
 const Coupon = require('../models/coupon')
 const asyncHandler = require('express-async-handler')
 
@@ -12,13 +13,35 @@ const createOrder = asyncHandler(async (req, res) => {
         count: el.quantity,
     }))
     let total = userCart?.cart?.reduce((sum, el) => el.product.price * (1 - el.product.sale / 100) * el.quantity + sum, 0)
-    const createData = { products, total, orderBy: _id }
     if (coupon) {
         const selectedCoupon = await Coupon.findById(coupon)
         total = Math.round(total * (1 - +selectedCoupon.discount / 100) / 1000) * 1000 || total
         createData.total = total
         createData.coupon = coupon
     }
+    const createData = { products, total, orderBy: _id }
+    const rs = await Order.create(createData)
+    return res.json({
+        success: rs ? true : false,
+        rs: rs ? rs : 'Something went wrong'
+    })
+})
+const createOrderNow = asyncHandler(async (req, res) => {
+    const { _id } = req.user
+    const { quantity , pid ,coupon } = req.body
+    const product = await Product.findById(pid)
+    const products = {
+        product: product._id,
+        count: quantity,
+    }
+    let total =  product.price * (1 - product.sale / 100) * quantity 
+    if (coupon) {
+        const selectedCoupon = await Coupon.findById(coupon)
+        total = Math.round(total * (1 - +selectedCoupon.discount / 100) / 1000) * 1000 || total
+        createData.total = total
+        createData.coupon = coupon
+    }
+    const createData = { products, total, orderBy: _id }
     const rs = await Order.create(createData)
     return res.json({
         success: rs ? true : false,
@@ -46,9 +69,20 @@ const getUserOrder = asyncHandler(async (req, res) => {
     })
 })
 const getOrders = asyncHandler(async (req, res) => {
-    const { status } = req.query
-    if (!status) throw new Error('Missing status')
-    const response = await Order.find({status}).populate('products.product', 'title thumb').populate('orderBy', 'firstname lastname')
+    const queries = { ...req.query }
+    const excludeFields = ['firstname']
+    excludeFields.forEach(el => delete queries[el])
+    let queryString = JSON.stringify(queries)
+    const formatedQueries = JSON.parse(queryString)
+    if (queries.status) formatedQueries.status = { $regex: queries.status.toString(), $options: 'i' }
+    let queryCommand = Order.find(formatedQueries).populate('products.product', 'title thumb').populate('orderBy', 'firstname lastname')
+    let response = await queryCommand
+    const firstname = req.query.firstname;
+    if (firstname) {
+        const regex = new RegExp(firstname, 'i'); // 'i' để không phân biệt hoa thường
+        response = response.filter(order => regex.test(order.orderBy.firstname));
+    }
+
     return res.json({
         success: response ? true : false,
         response: response ? response : 'Something went wrong'
@@ -69,6 +103,7 @@ const checkUserOrderProduct = asyncHandler(async (req, res) => {
 })
 module.exports = {
     createOrder,
+    createOrderNow,
     updateStatus,
     getUserOrder,
     getOrders,

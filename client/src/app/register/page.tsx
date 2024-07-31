@@ -13,6 +13,7 @@ const Register = () => {
     const [firstname, setFirstname] = useState('')
     const [lastname, setLastname] = useState('')
     const [mobile, setMobile] = useState('')
+    const [address, setAddress] = useState('')
     const handleUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
         var value = e.target.value;
         setEmail(value);
@@ -29,35 +30,49 @@ const Register = () => {
         var value = e.target.value;
         setLastname(value);
     }
-    const handlephonenumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePhonenumber = (e: React.ChangeEvent<HTMLInputElement>) => {
         var value = e.target.value;
         const numericValue = value.replace(/[^0-9]/g, '');
         setMobile(numericValue);
     }
-    const handleSubmit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
+        var value = e.target.value;
+        setAddress(value);
+    }
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (email === '') {
             Swal.fire('Thất bại', 'Không được bỏ trống email!', 'error')
-        } else if (!validateEmail(email)) {
+        }
+        else if (!validateEmail(email)) {
             Swal.fire('Thất bại', 'Email không đúng định dạng!', 'error')
-        } else if (password === '') {
+        }
+        else if (password === '') {
             Swal.fire('Thất bại', 'Không được bỏ trống mật khẩu!', 'error')
-        } else if (!validatePassword(password)) {
+        }
+        else if (!validatePassword(password)) {
             Swal.fire('Thất bại', 'Mật khẩu có ít nhất 1 chữ in hoa, 1 chữ thường, 1 chữ số và độ dài tối thiểu 8 kí tự!', 'error')
-        } else if (!firstname) {
+        }
+        else if (!firstname) {
             Swal.fire('Thất bại', 'Không được bỏ trống firstname!', 'error')
         }
         else if (!lastname) {
             Swal.fire('Thất bại', 'Không được bỏ trống lastname!', 'error')
-        } else if (!mobile) {
+        }
+        else if (!mobile) {
             Swal.fire('Thất bại', 'Không được bỏ trống số điện thoại!', 'error')
-        } else {
+        }
+        else if (!address) {
+            Swal.fire('Thất bại', 'Không được bỏ trống số địa chỉ!', 'error')
+        }
+        else {
             const userData = {
                 email,
                 password,
                 firstname,
                 lastname,
-                mobile
+                mobile,
+                address,
             }
             try {
                 // Thay URL bằng API thực tế của bạn
@@ -122,7 +137,11 @@ const Register = () => {
 
                         <Form.Group className="mb-3" controlId="">
                             <Form.Label>Số điện thoại  </Form.Label>
-                            <Form.Control type="text" value={mobile} onChange={handlephonenumber} />
+                            <Form.Control type="text" value={mobile} onChange={handlePhonenumber} />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="">
+                            <Form.Label>Địa chỉ  </Form.Label>
+                            <Form.Control type="text" value={address} onChange={handleAddress} />
                         </Form.Group>
                         <div className='d-flex justify-content-between'>
                             <div className="d-flex justify-content-center align-items-center">

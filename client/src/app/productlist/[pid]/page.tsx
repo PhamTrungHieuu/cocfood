@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import React from 'react';
 import '@/styles/product.css';
 import axios from "axios";
@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from "@/store/store";
 import Swal from "sweetalert2";
 import { useDispatch } from "react-redux";
 import { fetchUserData } from "@/store/authSilce";
+import Link from "next/link";
 interface Product {
     _id: string;
     title: string;
@@ -20,6 +21,7 @@ interface Product {
     totalRatings: number;
     brand: string;
     thumb: string;
+    category: string;
     ratings: [{
         star: number,
         comment: string
@@ -38,14 +40,27 @@ const Product = () => {
     const { pid } = param
     const [quantity, setQuantity] = useState(1);
     const [product, setProduct] = useState<Product | null>(null);
+    const [similarProduct, setSimilarProduct] = useState<Product[]>([]);
     const [countStar, setCountStar] = useState<number>(5)
     const [comment, setComment] = useState('')
     const [isUserBuyProduct, setIsUserBuyProduct] = useState(false)
+    const productListRef = useRef<HTMLDivElement>(null);
 
     const getProduct = () => {
         axios.get(`http://localhost:5000/api/product/?_id=${pid}`)
             .then(response => {
                 setProduct(response.data.products[0]);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
+    const getSimilarProduct = () => {
+        axios.get(`http://localhost:5000/api/product`, {
+            params: { category: product?.category }
+        })
+            .then(response => {
+                setSimilarProduct(response.data.products);
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
@@ -59,6 +74,9 @@ const Product = () => {
         getProduct()
         checkUserBuyProduct()
     }, [pid]);
+    useEffect(() => {
+        getSimilarProduct()
+    }, [product])
 
     const handleChangeQuantity = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, '');
@@ -145,9 +163,37 @@ const Product = () => {
                 showConfirmButton: false,
                 timer: 1000
             });
+            setComment('')
             getProduct()
         }
     }
+    const clickOrderNow = async() => {
+        const payload = {
+           quantity : quantity,
+            pid: pid,
+        }
+        const response = await axiosInstance.post('order/now', payload)
+        if(response.data?.success){
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Đặt hàng thành công",
+                showConfirmButton: false,
+                timer: 1000
+            });
+        }
+    }
+    const scrollLeft = () => {
+        if (productListRef.current) {
+          productListRef.current.scrollBy({ left: -248, behavior: 'smooth' });
+        }
+      };
+    
+      const scrollRight = () => {
+        if (productListRef.current) {
+          productListRef.current.scrollBy({ left: 248, behavior: 'smooth' });
+        }
+      };
     return (
         <div>
 
@@ -200,7 +246,7 @@ const Product = () => {
                                 <button className="detail-option-btn-cart bi bi-cart-plus" onClick={(e) => handleAddCart()}> Thêm vào giỏ hàng</button>
                             </div>
                             <div className="detail-option-pay">
-                                <button className="detail-option-btn-pay bi bi-plus-circle-fill"> Mua ngay</button>
+                                <button className="detail-option-btn-pay bi bi-plus-circle-fill" onClick={clickOrderNow}> Mua ngay</button>
                             </div>
                         </div>
                     </div>
@@ -272,6 +318,53 @@ const Product = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </div>
+                <div className="similar-product-box">
+                    <div className="similar-product-label">Sản phẩm tương tự </div>
+                    <div className="bi bi-arrow-left-circle btn-scroll-left" onClick={scrollLeft}>
+            </div>
+            <div className="bi bi-arrow-right-circle btn-scroll-right" onClick={scrollRight}>
+            </div>
+                    <div className="similar-product" ref={productListRef}>
+                        {similarProduct.map((product, index) => (
+                            <Link className='similar-product-item-sale' href={`/productlist/${product._id}`} key={index}>
+                                {product.sale != 0 && <div className='product-item-sales'> giảm {product.sale}% </div>}
+                                <div className='bi bi-heart-fill icon-like'></div>
+                                <div className='similar-product-product-img'>
+                                    <img className='similar-product-product-image' src={product.thumb} />
+                                </div>
+                                <div className='similar-product-name'>{product.title}</div>
+                                {product.sale == 0 ?
+                                    <div className="similar-product-price">
+                                        <div className="similar-product-price-number">{formatPrice(product.price)}</div>
+                                        <div className="similar-product-price-icon">₫</div>
+                                    </div>
+                                    :
+                                    <div style={{ display: 'flex' }}>
+                                        <div className="similar-product-price">
+                                            <div className="similar-product-price-number">{formatPrice(product.price * (1 - product.sale / 100))}</div>
+                                            <div className="similar-product-price-icon">₫</div>
+                                        </div>
+                                        <div className="similar-product-price">
+                                            <div className="similar-product-price-sales">{formatPrice(product.price)}</div>
+                                            <div className="similar-product-price-sales">₫</div>
+                                        </div>
+                                    </div>
+
+                                }
+                                <div className="product-evluate">
+                                    <div className="star-rating">
+                                        <div className="stars" style={{ width: `${(product.totalRatings / 5) * 100}%` }}>
+                                            ★★★★★
+                                        </div>
+                                        <div className="star-overlay">★★★★★</div>
+                                    </div>
+                                </div>
+                                {/* </div> */}
+                            </Link>
+                        ))}
+
                     </div>
                 </div>
 

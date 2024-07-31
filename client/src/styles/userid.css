@@ -30,7 +30,8 @@
     justify-content: center;
     align-items: center;
 }
-.profile-edit-user-form{
+
+.profile-edit-user-form {
     border: 1px solid #f93;
     border-radius: 10px;
     width: 400px;
@@ -38,13 +39,14 @@
     padding: 10px;
 }
 
-.profile-edit-user-label{
+.profile-edit-user-label {
     font-size: 20px;
     font-weight: 600;
     color: #f93;
-        
+
 }
-.profile-edit-user-ip{
+
+.profile-edit-user-ip {
     margin-top: 20px;
     height: 40px;
     border-radius: 10px;
@@ -53,7 +55,8 @@
     padding-left: 10px;
     align-content: center;
 }
-.profile-edit-user-btn{
+
+.profile-edit-user-btn {
     margin-top: 30px;
     color: #ffffff;
     font-weight: bold;
@@ -62,10 +65,12 @@
     border-radius: 20px;
     background-color: #f93;
 }
-.profile-edit-user-btn:hover{
+
+.profile-edit-user-btn:hover {
     background-color: #794816;
 }
-.profile-edit-user-btn-cancel{
+
+.profile-edit-user-btn-cancel {
     margin-top: 30px;
     color: #ffffff;
     font-weight: bold;
@@ -74,9 +79,11 @@
     border-radius: 20px;
     background-color: red;
 }
-.profile-edit-user-btn-cancel:hover{
+
+.profile-edit-user-btn-cancel:hover {
     background-color: rgb(121, 0, 0);
 }
+
 .profile-row {
     display: flex;
     height: 70px;
@@ -131,17 +138,30 @@
     /* Màu nền của đường dẫn thanh cuộn */
 }
 
-.profile-img{
+.profile-img {
     width: 35%;
     height: auto;
 }
-.profile-avata{
+
+.profile-avata {
     margin-top: 50px;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.profile-avata-img{
+
+.profile-avata-img {
     width: 80%;
+}
+
+input[type="file"] {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    overflow: hidden;
+    z-index: 1;
+    background-color: aqua;
+    left: 0;
+    cursor: pointer;
 }

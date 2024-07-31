@@ -23,7 +23,7 @@ const Status = ({ status }: ProcessingProps) => {
     const [dataOrder, setDataOrder] = useState<Orders[]>([]);
     const getOrder = async () => {
         const response = await axiosInstance.get('order', { params: { status } })
-        if (response.data.success) {
+        if (response.data?.success) {
             setDataOrder(response.data.response)
         }
     }

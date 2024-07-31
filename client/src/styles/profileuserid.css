@@ -145,3 +145,14 @@
 .profile-avata-img{
     width: 80%;
 }
+
+input[type="file"] {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    overflow: hidden;
+    z-index: 1;
+    background-color: aqua;
+    left: 0;
+    cursor: pointer;
+}

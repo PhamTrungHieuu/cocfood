@@ -6,9 +6,9 @@ const slugify = require('slugify')
 
 
 const createProduct = asyncHandler(async (req, res) => {
-    if (Object.keys(req.body).length === 0 || !req.files['thumb'] ) throw new Error('Missing inputs')
+    if (Object.keys(req.body).length === 0 || !req.files['thumb']) throw new Error('Missing inputs')
     if (req.body && req.body.title) {
-        req.body.slug = slugify(req.body.title)
+        req.body.slug = slugify(req.body.title, { lower: true, strict: true })
     }
     req.body.thumb = req.files['thumb'][0].path;
     // req.body.images = req.files['images'].map((file) => file.path);  or filenames if you're saving the files to disk
@@ -40,7 +40,11 @@ const getProducts = asyncHandler(async (req, res) => {
     // Filtering
     if (queries?.title) formatedQueries.title = { $regex: queries.title, $options: 'i' }
     let queryCommand = Product.find(formatedQueries)
-
+    if (queries?.slug) {
+        const escapedSlug = queries.slug.replace(/ /g, '+');
+        formatedQueries.slug = { $regex: escapedSlug, $options: 'i' }
+        queryCommand = Product.find(formatedQueries)
+    }
 
     //sort
     if (req.query.sort) {
@@ -87,7 +91,7 @@ const getProducts = asyncHandler(async (req, res) => {
 })
 const updateProduct = asyncHandler(async (req, res) => {
     const { pid } = req.params
-    if (req.body && req.body.title) req.body.slug = slugify(req.body.title)
+    if (req.body && req.body.title) req.body.slug = slugify(req.body.title, { lower: true, strict: true })
     const updatedProduct = await Product.findByIdAndUpdate(pid, req.body, { new: true })
     return res.status(200).json({
         success: updatedProduct ? true : false,

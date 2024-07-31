@@ -8,7 +8,8 @@ import { useDispatch } from 'react-redux';
 import { getCategories } from '@/store/authSilce';
 import { AppDispatch, RootState } from '@/store/store';
 import { useSelector } from 'react-redux';
-import { useAppContext } from '@/context/Appcontext';
+import { title } from 'process';
+import { useSearchParams } from 'next/navigation';
 
 interface Product {
     _id: string,
@@ -23,19 +24,36 @@ const ProductList = () => {
     const dispatch = useDispatch<AppDispatch>()
     const [popupText, setPopupText] = useState('Mặc định')
     const [isPopupSort, setIsPopupSort] = useState(false)
-    const [valueQuery, setValueQuery] = useState('?limit=10')
+    const [valueQuery, setValueQuery] = useState()
     const [valueQueryCategory, setValueQueryCategory] = useState('')
     const [showCategory, setShowCategory] = useState('Tất cả')
     const [valueQuerySort, setValueQuerySort] = useState('')
-    const [valueQueryPage, setValueQueryPage] = useState('')
+    const [valueQueryTitle, setValueQueryTitle] = useState('')
+    const [valueQuerySale, setValueQuerySale] = useState(false)
     const [listProduct, setListProduct] = useState<Product[]>([])
     const categories = useSelector((state: RootState) => state.auth.categories);
     const [countPageTotal, setCountPageTotal] = useState(Number)
     const [countPage, setCountPage] = useState(1)
     const [countPageInput, setCountPageInput] = useState(1)
-    const { searchTerm } = useAppContext();
+    const searchParams = useSearchParams();
     const getProduct = async () => {
-        axios.get(`http://localhost:5000/api/product/${valueQuery}`)  // Thay thế bằng API thực tế của bạn
+
+        const params: { [key: string]: string } = {
+        };
+        params.limit = '10'
+        if (valueQueryTitle) {
+            params.slug = valueQueryTitle;
+        }
+        if (valueQueryCategory) {
+            params.category = valueQueryCategory
+        }
+        if (valueQuerySort) {
+            params.sort = valueQuerySort
+        }
+        if (countPage) {
+            params.page = countPage.toString()
+        }
+        axios.get(`http://localhost:5000/api/product`, { params })  // Thay thế bằng API thực tế của bạn
             .then(response => {
                 setListProduct(response.data.products);
                 setCountPageTotal(response.data.counts);
@@ -45,28 +63,14 @@ const ProductList = () => {
             });
     }
     useEffect(() => {
-        getProduct();
         dispatch(getCategories())
     }, []);
     useEffect(() => {
         getProduct();
-    }, [valueQuery]);
+    }, [valueQueryTitle, valueQueryCategory, valueQuerySort, countPage]);
     useEffect(() => {
-        handleQuery();
-    }, [searchTerm, valueQueryCategory, valueQuerySort, valueQueryPage]);
-    useEffect(() => {
-        handleQueryPage()
-    }, [countPage]);
-    const handleQueryPage = () => {
-        setValueQueryPage(`&page=${countPage}`)
-    }
-    const handleQuery = () => {
-
-        if (searchTerm)
-            setValueQuery(`?limit=10&title=${searchTerm + valueQueryCategory + valueQuerySort + valueQueryPage}`)
-        else
-            setValueQuery(`?limit=10&${valueQueryCategory + valueQuerySort + valueQueryPage}`)
-    }
+        setValueQueryTitle(searchParams.get('title') || '');
+    }, [searchParams]);
     const formatPrice = (price: Number) => {
         return price.toLocaleString('vi-VN');
     };
@@ -80,33 +84,39 @@ const ProductList = () => {
     const handlePopupSortChutang = () => {
         setPopupText('A → Z')
         setIsPopupSort(false);
-        setValueQuerySort('&sort=title')
+        setValueQuerySort('title')
     }
     const handlePopupSortChugiam = () => {
         setPopupText('Z → A')
         setIsPopupSort(false);
-        setValueQuerySort('&sort=-title')
+        setValueQuerySort('-title')
     }
 
 
     const handlePopupSortGiatang = () => {
         setPopupText('Giá tăng dần')
         setIsPopupSort(false);
-        setValueQuerySort('&sort=price')
+        setValueQuerySort('price')
     }
 
     const handlePopupSortGiagiam = () => {
         setPopupText('Giá giảm dần')
-        setValueQuerySort('&sort=-price')
+        setValueQuerySort('-price')
         setIsPopupSort(false);
+    }
+    const handlePopupSortSale = () => {
+        setPopupText('Khuyến mãi')
+        setValueQuerySort('-sale')
+        setIsPopupSort(false);
+
     }
     const onClickCategory = (title: string) => {
         if (title === '') {
             setValueQueryCategory('')
             setShowCategory('Tất cả')
         }
-        else{
-            setValueQueryCategory(`&category=${title}`)
+        else {
+            setValueQueryCategory(title)
             setShowCategory(title)
         }
     }
@@ -200,15 +210,18 @@ const ProductList = () => {
                                     <div className='popup-sort-btn giatang' onClick={handlePopupSortGiagiam}>
                                         <button className='popup-sort-btn-text'>Giá giảm dần</button>
                                     </div>
+                                    <div className='popup-sort-btn giatang' onClick={handlePopupSortSale}>
+                                        <button className='popup-sort-btn-text'>Khuyến mãi </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
                     </div>
-                        <div style={{color: '#f93'}}>
-                            {showCategory ?showCategory  :'Tất cả' }
-                        </div>
+                    <div style={{ color: '#f93' }}>
+                        {showCategory ? showCategory : 'Tất cả'}
+                    </div>
                 </div>
-                <div className='productList'>
+                {listProduct.length > 0 ? <div className='productList'>
                     {listProduct.map((product, index) => (
                         <Link className='product-item' href={`/productlist/${product._id}`} key={index}>
                             {product.sale != 0 && <div className='product-item-sales'> giảm {product.sale}% </div>}
@@ -246,6 +259,9 @@ const ProductList = () => {
                         </Link>
                     ))}
                 </div>
+                    :
+                    <div style={{ height: '100%', textAlign: 'center', color: '#f93', fontSize: '25px', paddingTop: '100px' }}> Không có sản phẩm nào!</div>
+                }
             </div>
         </div >
     )

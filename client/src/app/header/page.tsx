@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { toast, ToastContainer } from 'react-toastify';
-import { useAppContext } from '@/context/Appcontext';
+import slugify from 'slugify';
 interface Token extends JwtPayload {
     _id: string;
     role: string;
@@ -38,7 +38,6 @@ const Header: React.FC = () => {
     const [decodedToken, setDecodedToken] = useState<Token | null>(null);
     const [isHovered, setIsHovered] = useState(false);
     const [valueSearch, setValueSearch] = useState('');
-    const { setSearchTerm } = useAppContext();
     useEffect(() => {
         tokenDecode();
     }, [])
@@ -144,16 +143,9 @@ const Header: React.FC = () => {
             });
         }
     }
-    // const showAdmin = () => {
-    //     if (decodedToken?.role === 'admin') {
-    //         router.push('/admin');
-    //     } else {
-    //         Swal.fire("Bạn không phải là admin!");
-    //     }
-    // }
     const clickProfileUser = () => {
         tokenDecode();
-        router.push(`profile/${decodedToken?._id}`)
+        router.replace(`/profile/${decodedToken?._id}`)
     }
     const clickLogout = () => {
         dispatch(logout());
@@ -170,33 +162,33 @@ const Header: React.FC = () => {
     const hanleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value
         setValueSearch(value)
-        setSearchTerm(value)
     }
     const clickSearch = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setSearchTerm(valueSearch)
-        // router.push('/productlist')
+        const valueSearchSlug = slugify(valueSearch, { lower: true, strict: true });
+        router.replace(`/productlist/?title=${valueSearchSlug}`)
     }
     return (
         <div className='header-box'>
-            <div className="header-logo">
+            <Link href={'/'} className="header-logo">
                 <img className='header-logo-img' src="https://res.cloudinary.com/dlhpuaa9i/image/upload/v1720405970/Orange_and_Blue_Illustrative_Circle_Food_Logo_bmgqyj.png" alt="Logo" />
-            </div>
+            </Link>
             <div className="header-search">
                 <form className='header-search-ip' onSubmit={clickSearch}>
-                    <input className='header-search-ip-text' placeholder='Tìm kiếm sản phẩm...' value={valueSearch} onChange={hanleSearch} />
+                    <input type='search' className='header-search-ip-text' placeholder='Tìm kiếm sản phẩm...' value={valueSearch} onChange={hanleSearch} />
+
                     <button className='header-search-btn bi bi-search' type='submit'></button>
                 </form>
                 <div className='header-link'>
                     <Link className={`header-link-text ${isColorTrangChu}`} href={'/'}>Trang chủ</Link>
                     <Link className={`header-link-text ${isColorSanPham}`} href={'/productlist'}>Sản phẩm</Link>
                     <Link className={`header-link-text ${isColorOrder}`} href={'/order'}> Đơn hàng </Link>
-                    <Link className={`header-link-text ${isColorGioiThieu}`} href={'/about'}>Giới thiệu</Link>
+                    {/* <Link className={`header-link-text ${isColorGioiThieu}`} href={'/about'}>Giới thiệu</Link> */}
                 </div>
             </div>
             <div className="header-box-option">
                 <div className='header-option'>
-                    <Link href={'/login'} className='header-option-btn header-option-favourite bi bi-heart-fill'></Link>
+                    {/* <Link href={'/login'} className='header-option-btn header-option-favourite bi bi-heart-fill'></Link> */}
                     <button className='header-option-btn header-option-cart bi bi-cart-fill' onClick={showCart}>
                         <div className='icon-quantity-cart'>{quantityCart}</div>
                     </button>

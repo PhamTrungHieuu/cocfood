@@ -1,7 +1,7 @@
 'use client'
 import { Container } from "react-bootstrap";
 import '@/styles/userid.css'
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import axiosInstance from "@/axiosConfig";
 import { useParams } from "next/navigation";
 import Swal from "sweetalert2";
@@ -67,7 +67,7 @@ const Userid = () => {
         setValueAvatar(null)
     }
 
-    const handleEdit = (e) => {
+    const handleEdit = (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value
         if (keyEdit === 'mobile') {
             value = value.replace(/[^0-9]/g, '');
@@ -76,9 +76,10 @@ const Userid = () => {
         setValueEdit(value)
     }
 
-    const handleEditAvatar = (e) => {
-        const file = e.target.files[0];
-        setValueAvatar(file)
+    const handleEditAvatar = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files;
+        if (file)
+            setValueAvatar(file[0])
     }
 
     const btnSubmitEidt = async () => {
@@ -212,8 +213,9 @@ const Userid = () => {
                         {isShowEditAvatar && <div className="profile-edit-user">
                             <div className="profile-edit-user-form">
                                 <div className="profile-edit-user-label"> {labelEdit} </div>
-                                <div style={{ marginTop: '30px' }}>
-                                    <input type="file" className="profile-edit-user-avatar" style={{ width: '100%' }} onChange={handleEditAvatar} ></input>
+                                <div style={{ marginTop: '30px' , background : '#f93' , color : '#ffffff', textAlign: 'center'}}>
+                                    <input type="file" className="profile-edit-user-avatar" style={{ width: '100%'  }} onChange={handleEditAvatar} ></input>
+                                    Tải ảnh lên
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <button className="profile-edit-user-btn-cancel" onClick={btnCancel}>Quay lại</button>

@@ -1,7 +1,7 @@
 'use client'
 import axiosInstance from "@/axiosConfig";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import '@/styles/orderadminstatus.css'
 import Swal from "sweetalert2";
 interface Orders {
@@ -27,8 +27,14 @@ interface ProcessingProps {
 const StatusAdmin = ({ status }: ProcessingProps) => {
     const [dataOrder, setDataOrder] = useState<Orders[]>([]);
     const [isShowPopupHandleStatus, setIsShowPopupHandleStatus] = useState<{ [key: string]: boolean }>({});
+    const [nameUseroder, setNameUserOder] = useState('');
+
     const getOrder = async () => {
-        const response = await axiosInstance.get('order/admin', { params: { status } })
+        const params: { [key: string]: string } = {}
+        params.status = status
+        if (nameUseroder)
+            params.firstname = nameUseroder
+        const response = await axiosInstance.get('order/admin', { params })
         if (response.data.success) {
             setDataOrder(response.data.response)
         }
@@ -68,8 +74,18 @@ const StatusAdmin = ({ status }: ProcessingProps) => {
 
         }
     }
+    const clickSearchOder = (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        getOrder()
+    }
     return (
         <div style={{ minHeight: '450px' }}>
+            <nav className="navbar justify-content-between">
+                <form className="form-inline d-flex" onSubmit={clickSearchOder}>
+                    <input className="form-control mr-sm-2" type="search" placeholder="Nhập tên khách hàng..." aria-label="Search" onChange={(e) => setNameUserOder(e.target.value)} />
+                    <button style={{ marginLeft: '20px', width: '200px' }} className="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm </button>
+                </form>
+            </nav>
             {dataOrder?.length > 0 ? <table className="table table-striped" >
                 <thead>
                     <tr>
@@ -84,7 +100,7 @@ const StatusAdmin = ({ status }: ProcessingProps) => {
                     {dataOrder?.length > 0 && dataOrder.map((order, index) => (
                         <tr key={order?._id}>
                             <th scope="row">{index + 1}</th>
-                            <td style={{ alignContent: 'center' }} > {order.orderBy.firstname} {order.orderBy.lastname} </td>
+                            <td style={{ alignContent: 'center' }} > {order.orderBy.firstname}</td>
                             <td>
                                 {order.products && order.products.map((product) => (
                                     <div key={product?._id}>

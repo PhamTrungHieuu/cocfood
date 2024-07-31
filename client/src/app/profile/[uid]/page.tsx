@@ -1,7 +1,7 @@
 'use client'
 import { Container } from "react-bootstrap";
 import '@/styles/profileuserid.css'
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import axiosInstance from "@/axiosConfig";
 import { useParams } from "next/navigation";
 import Swal from "sweetalert2";
@@ -30,8 +30,8 @@ const ProfileUserId = () => {
 
     const getUsers = async () => {
         try {
-            const response = await axiosInstance.get(`user/${uid}`);
-            setUserData(response.data.users);
+            const response = await axiosInstance.get(`user/current`);
+            setUserData(response.data.rs);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -66,7 +66,7 @@ const ProfileUserId = () => {
         setValueAvatar(null)
     }
 
-    const handleEdit = (e) => {
+    const handleEdit = (e:ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value
         if (keyEdit === 'mobile') {
             value = value.replace(/[^0-9]/g, '');
@@ -75,9 +75,10 @@ const ProfileUserId = () => {
         setValueEdit(value)
     }
 
-    const handleEditAvatar = (e) => {
-        const file = e.target.files[0];
-        setValueAvatar(file)
+    const handleEditAvatar = (e:ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files;
+        if(file)
+        setValueAvatar(file[0])
     }
 
     const btnSubmitEidt = async () => {
@@ -211,7 +212,8 @@ const ProfileUserId = () => {
                         {isShowEditAvatar && <div className="profile-edit-user">
                             <div className="profile-edit-user-form">
                                 <div className="profile-edit-user-label"> {labelEdit} </div>
-                                <div style={{ marginTop: '30px' }}>
+                                <div style={{ marginTop: '30px' , background : '#f93' , color : '#ffffff', textAlign: 'center' }}>
+                                    Tải ảnh lên
                                     <input type="file" className="profile-edit-user-avatar" style={{ width: '100%' }} onChange={handleEditAvatar} ></input>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>

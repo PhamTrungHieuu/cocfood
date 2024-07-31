@@ -82,11 +82,11 @@ export default function Home() {
             </Link>
             <div className="banner-small">
               <div className="banner-small-link">
-                <Link href='/'   >
+                <Link href='/productlist'   >
                   <img className="img-banner-small" src="https://res.cloudinary.com/dlhpuaa9i/image/upload/v1721102218/img_3banner_1_sbqiti.webp"></img>
                 </Link>
               </div>
-              <Link href='/' className="banner-small-link"  >
+              <Link href='/productlist' className="banner-small-link"  >
                 <img className="img-banner-small" src="https://res.cloudinary.com/dlhpuaa9i/image/upload/v1721102139/img_3banner_2_en3gmw.webp"></img>
               </Link>
             </div>

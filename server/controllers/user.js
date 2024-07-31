@@ -155,8 +155,13 @@ const resetPassword = asyncHandler(async (req, res) => {
         mes: user ? 'Updated password' : 'Something went wrong'
     })
 })
-const getUser = asyncHandler(async (req, res) => {
-    const response = await User.find().select('-refreshToken -password -role')
+const getUsers = asyncHandler(async (req, res) => {
+    const queries = { ...req.query }
+    let queryString = JSON.stringify(queries)
+    const formatedQueries = JSON.parse(queryString)
+    if (queries?.firstname) formatedQueries.firstname = { $regex: queries.firstname, $options: 'i' }
+    let queryCommand = User.find(formatedQueries)
+    const response = await queryCommand.select('-refreshToken -password -role')
     return res.status(200).json({
         success: response ? true : false,
         users: response
@@ -284,7 +289,7 @@ module.exports = {
     logout,
     forgotPassword,
     resetPassword,
-    getUser,
+    getUsers,
     getUserByadmin,
     deleteUser,
     updateUser,

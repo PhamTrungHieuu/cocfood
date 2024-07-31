@@ -2,7 +2,7 @@
 
 import { Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import axiosInstance from "@/axiosConfig";
 import Swal from "sweetalert2";
 import Link from "next/link";
@@ -21,8 +21,12 @@ interface Product {
 const Products = () => {
     // Khai báo kiểu dữ liệu cho useState
     const [productData, setProductData] = useState<Product[]>([])
+    const [titleProduct, setTitleProduct] = useState('')
     const getProducts = async () => {
-        axios.get('http://localhost:5000/api/product')  // Thay thế bằng API thực tế của bạn
+        const params :{[key:string] : string} = {}
+        if(titleProduct)
+            params.title = titleProduct
+        axios.get('http://localhost:5000/api/product', {params})  // Thay thế bằng API thực tế của bạn
             .then(response => {
                 setProductData(response.data.products);
             })
@@ -36,7 +40,7 @@ const Products = () => {
     }, []);
     const deleteProductbtn = async (uid: string) => {
         Swal.fire({
-            title: "Xóa tài khoản?",
+            title: "Xóa sản phẩm?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -62,12 +66,21 @@ const Products = () => {
         }
         getProducts();
     }
+    const clickSearchProduct = (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        getProducts()
+    }
     return (
         <div style={{ minHeight: '500px' }}>
-
-            <Link href={`/admin/products/created`}>
-                <Button variant="success" size="lg" className="me-2 mt-2">Tạo sản phẩm mới </Button>
-            </Link>
+            <nav className="navbar justify-content-between">
+                <form className="form-inline d-flex" onSubmit={clickSearchProduct}>
+                    <input className="form-control mr-sm-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" onChange={(e) => setTitleProduct(e.target.value)}/>
+                    <button style={{marginLeft: '20px', width: '200px'}} className="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm </button>
+                </form>
+                <Link href={`/admin/products/created`}>
+                    <Button variant="success" size="lg" className="me-2 mt-2">Tạo sản phẩm mới </Button>
+                </Link>
+            </nav>
             {productData?.length > 0 ? <table className="table table-striped">
                 <thead>
                     <tr className="text-center align-middle">

@@ -5,6 +5,7 @@ import { Container } from 'react-bootstrap';
 import Users from './users/page';
 import Products from './products/page';
 import OrderAdmin from './orders/page';
+import Categorys from './category/page';
 
 const Admin = () => {
     const [navagateAdmin, setNavagateAdmin] = useState(<Users></Users>);
@@ -20,6 +21,9 @@ const Admin = () => {
         }
         else if(menu === 'orders'){
             setNavagateAdmin(<OrderAdmin></OrderAdmin>)
+        }
+        else if(menu === 'category'){
+            setNavagateAdmin(<Categorys></Categorys>)
         }
     };
 
@@ -40,10 +44,10 @@ const Admin = () => {
                         Sản phẩm
                     </div>
                     <div 
-                        className={`admin-menu-text ${activeMenu === 'blog' ? 'active' : ''}`} 
-                        onClick={() => handleMenuClick('blog')}
+                        className={`admin-menu-text ${activeMenu === 'category' ? 'active' : ''}`} 
+                        onClick={() => handleMenuClick('category')}
                     >
-                        Blog
+                        Danh mục
                     </div>
                     <div 
                         className={`admin-menu-text ${activeMenu === 'orders' ? 'active' : ''}`} 
