@@ -67,8 +67,10 @@ const Product = () => {
             });
     }
     const checkUserBuyProduct = async () => {
-        const response = await axiosInstance.get('order/check', { params: { pid: pid } })
-        setIsUserBuyProduct(response.data.success)
+        if (isLoggedIn) {
+            const response = await axiosInstance.get('order/check', { params: { pid: pid } })
+            setIsUserBuyProduct(response.data.success)
+        }
     }
     useEffect(() => {
         getProduct()
@@ -99,7 +101,6 @@ const Product = () => {
     const handleQuantityCong = () => {
         const value = quantity
         setQuantity(value + 1);
-        console.log(value + 1)
     }
     const formatPrice = (price: Number) => {
         return price.toLocaleString('vi-VN');
@@ -167,33 +168,50 @@ const Product = () => {
             getProduct()
         }
     }
-    const clickOrderNow = async() => {
-        const payload = {
-           quantity : quantity,
-            pid: pid,
-        }
-        const response = await axiosInstance.post('order/now', payload)
-        if(response.data?.success){
+    const clickOrderNow = async () => {
+        if (isLoggedIn) {
+            const payload = {
+                quantity: quantity,
+                pid: pid,
+            }
+            const response = await axiosInstance.post('order/now', payload)
+            if (response.data?.success) {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Đặt hàng thành công",
+                    showConfirmButton: false,
+                    timer: 1000
+                });
+            }
+        } else {
             Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Đặt hàng thành công",
-                showConfirmButton: false,
-                timer: 1000
+                title: "Chưa đăng nhập",
+                text: "Đăng nhập để thêm sản phẩm vào giỏ hàng!",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                confirmButtonColor: "#f93",
+                confirmButtonText: "Đăng nhập ngay!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.push('/login')
+                }
             });
         }
     }
     const scrollLeft = () => {
         if (productListRef.current) {
-          productListRef.current.scrollBy({ left: -248, behavior: 'smooth' });
+            productListRef.current.scrollBy({ left: -248, behavior: 'smooth' });
         }
-      };
-    
-      const scrollRight = () => {
+    };
+
+    const scrollRight = () => {
         if (productListRef.current) {
-          productListRef.current.scrollBy({ left: 248, behavior: 'smooth' });
+            productListRef.current.scrollBy({ left: 248, behavior: 'smooth' });
         }
-      };
+    };
     return (
         <div>
 
@@ -323,9 +341,9 @@ const Product = () => {
                 <div className="similar-product-box">
                     <div className="similar-product-label">Sản phẩm tương tự </div>
                     <div className="bi bi-arrow-left-circle btn-scroll-left" onClick={scrollLeft}>
-            </div>
-            <div className="bi bi-arrow-right-circle btn-scroll-right" onClick={scrollRight}>
-            </div>
+                    </div>
+                    <div className="bi bi-arrow-right-circle btn-scroll-right" onClick={scrollRight}>
+                    </div>
                     <div className="similar-product" ref={productListRef}>
                         {similarProduct.map((product, index) => (
                             <Link className='similar-product-item-sale' href={`/productlist/${product._id}`} key={index}>

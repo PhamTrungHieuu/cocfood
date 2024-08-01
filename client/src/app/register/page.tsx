@@ -1,7 +1,8 @@
 'use client'
+import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form'
@@ -14,6 +15,8 @@ const Register = () => {
     const [lastname, setLastname] = useState('')
     const [mobile, setMobile] = useState('')
     const [address, setAddress] = useState('')
+    const [token, setToken] = useState('')
+    const [isShowPopupRegister, setIsShowPopupRegister] = useState(false)
     const handleUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
         var value = e.target.value;
         setEmail(value);
@@ -38,6 +41,10 @@ const Register = () => {
     const handleAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
         var value = e.target.value;
         setAddress(value);
+    }
+    const handleToken = (e: React.ChangeEvent<HTMLInputElement>) => {
+        var value = e.target.value;
+        setToken(value);
     }
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -74,30 +81,18 @@ const Register = () => {
                 mobile,
                 address,
             }
-            try {
-                // Thay URL bằng API thực tế của bạn
-                const response = await fetch('http://localhost:5000/api/user/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(userData),
-                    credentials: 'include'
+            const response = await axios.post('http://localhost:5000/api/user/register', userData)
+            if (response.data.success) {
+                setIsShowPopupRegister(true)
+            }
+            else {
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Đăng kí thất bại",
+                    showConfirmButton: false,
+                    timer: 1500
                 });
-
-                const rs = await response.json();
-                if (rs.success) {
-                    Swal.fire('Check', rs.mes, 'success').then((result) => {
-                        if (result.isConfirmed) {
-                            router.push('/login')
-                        }
-                    })
-                } else {
-                    Swal.fire('Thất bại', 'Email đã tồn tại!', 'error')
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra!');
             }
         }
     }
@@ -109,9 +104,60 @@ const Register = () => {
         const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
         return regex.test(password)
     }
+    const clickRegisterToken = async (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (token) {
+            const response = await axios.put(`http://localhost:5000/api/user/finalregister/${token}`)
+            if (response.data.success) {
+                await Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Đăng kí thành công",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setIsShowPopupRegister(false)
+                router.replace('/login')
+            }
+            else {
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Đăng kí thất bại",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setIsShowPopupRegister(false)
+                setToken('')
+            }
+        }
+        else {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Không được để trống",
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+        }
+    }
     return (
         <div>
-            <div style={{ color: '#f93', border: '1px solid #f93', width: '40%', margin: '30px auto', padding: '20px 20px', borderRadius: '10px', boxShadow: '0 10px 16px rgba(0, 0, 0, 0.1)' }}  >
+            <div style={{ position: 'relative', color: '#f93', border: '1px solid #f93', width: '40%', margin: '30px auto', padding: '20px 20px', borderRadius: '10px', boxShadow: '0 10px 16px rgba(0, 0, 0, 0.1)' }}  >
+                {
+                    isShowPopupRegister &&
+                    <div style={{ top: '0', left: '0', borderRadius: '10px', position: 'absolute', width: '100%', height: '100%', background: '#71717187', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <div>
+                            <form className="form-inline d-flex" onSubmit={clickRegisterToken}>
+                                <div className="form-group mx-sm-3 mb-2">
+                                    <input type="text" className="form-control" id="inputPassword2" placeholder="Nhập code..." value={token} onChange={handleToken}></input>
+                                </div>
+                                <button type="submit" className="btn btn-primary mb-2">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                }
                 <div style={{ height: '100px', fontSize: '30px', fontWeight: '700' }} className='d-flex justify-content-center align-items-center' >Đăng ký</div>
                 <div className="d-flex justify-content-center">
                     <Form style={{ width: '400px' }} onSubmit={handleSubmit}>

@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2';
 import { AppDispatch } from '@/store/store';
-import { login } from '@/store/authSilce';
+import { fetchUserData, login } from '@/store/authSilce';
 import { useDispatch } from 'react-redux';
 const Login: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -44,7 +44,8 @@ const Login: React.FC = () => {
             });
             const rs = await response.json();
             if (rs.success) {
-                dispatch(login(rs.accsessToken));
+                await dispatch(login(rs.accsessToken));
+                await dispatch(fetchUserData())
                 router.push('/')
             } else {
                 Swal.fire('Thất bại', 'Tài khoản hoặc mật khẩu không chính xác!', 'error')
@@ -136,7 +137,6 @@ const Login: React.FC = () => {
                             <Form.Check type="checkbox" label="Hiển thị mật khẩu" onChange={togglePasswordVisibility} />
                         </Form.Group>
                         <div style={{ height: '100px' }} className="d-flex justify-content-center align-items-center">
-
                             <Button variant="primary" type="submit">
                                 Đăng nhập
                             </Button>

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useParams, useRouter } from 'next/navigation';
 import Swal from "sweetalert2";
 const PasswordReset = () => {
@@ -7,11 +7,11 @@ const PasswordReset = () => {
     const params = useParams();
     const [password, setPassword] = useState('')
     const { token } = params;
-    const handleChangePassword = (e) => {
+    const handleChangePassword = (e:ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
         setPassword(value)
     }
-    const clickSubmitResetPassword = async (e) => {
+    const clickSubmitResetPassword = async () => {
         if (!password) {
             Swal.fire('Error', 'Không được để trống mật khẩu', 'error')
         } else if (!validatePassword(password)) {
@@ -26,9 +26,14 @@ const PasswordReset = () => {
                 body: JSON.stringify({ password, token }),
             });
             const rs = await response.json();
-            console.log(rs)
             if (rs.success) {
-                Swal.fire('Thành công', ' Đổi mật khẩu thàng công.', 'success')
+                await Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: `Đặt mật khẩu mới thành công`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
                 router.push('/login')
             }
             else {
@@ -46,7 +51,7 @@ const PasswordReset = () => {
     }
     return (
         <div>
-            <div className='popup-forgot-passworf' style={{}}>
+            <div className='popup-forgot-passworf' style={{minHeight: '550px'}}>
 
                 <div className="container mt-5">
                     <div className="row">

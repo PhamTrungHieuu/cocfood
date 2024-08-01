@@ -24,6 +24,7 @@ const ProfileUserId = () => {
     const [idEdit, setIdEdit] = useState('');
     const [labelEdit, setLabelEdit] = useState('');
     const [keyEdit, setKeyEdit] = useState('');
+    const [passwordCurrent, setPasswordCurrent] = useState('');
     const [valueAvatar, setValueAvatar] = useState<File | null>(null);
     const param = useParams();
     const { uid } = param
@@ -44,7 +45,8 @@ const ProfileUserId = () => {
     const changeUser = (uid: string, key: string, value: string, label: string) => {
         setIdEdit(uid);
         setKeyEdit(key)
-        setValueEdit(value)
+        if (key !== 'password')
+            setValueEdit(value)
         setLabelEdit(label)
         setIsShowEdit(true)
     }
@@ -64,9 +66,10 @@ const ProfileUserId = () => {
         setIsShowEdit(false)
         setIsShowEditAvatar(false)
         setValueAvatar(null)
+        setPasswordCurrent('')
     }
 
-    const handleEdit = (e:ChangeEvent<HTMLInputElement>) => {
+    const handleEdit = (e: ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value
         if (keyEdit === 'mobile') {
             value = value.replace(/[^0-9]/g, '');
@@ -75,40 +78,79 @@ const ProfileUserId = () => {
         setValueEdit(value)
     }
 
-    const handleEditAvatar = (e:ChangeEvent<HTMLInputElement>) => {
+    const handleEditAvatar = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files;
-        if(file)
-        setValueAvatar(file[0])
+        if (file)
+            setValueAvatar(file[0])
     }
 
     const btnSubmitEidt = async () => {
         if (valueEdit) {
-            try {
-                const payload = {
-                    [keyEdit]: valueEdit
-                };
-                const response = await axiosInstance.put(`user/${uid}`, payload);
-                if (response.data.success) {
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: `Thay đổi ${labelEdit} thành công`,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    btnCancel()
-                } else {
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: `Thay đổi ${labelEdit} không thành công`,
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    btnCancel()
+            if (keyEdit === 'password') {
+                if (passwordCurrent) {
+                    if (!validatePassword(passwordCurrent) || !validatePassword(valueEdit)) {
+                        Swal.fire('Thất bại', 'Mật khẩu có ít nhất 1 chữ in hoa, 1 chữ thường, 1 chữ số và độ dài tối thiểu 8 kí tự!', 'error')
+                    } else {
+                        const payload = {
+                            password: passwordCurrent,
+                            passwordnew: valueEdit
+                        }
+                        const response = await axiosInstance.put('user/handlepassword', payload)
+                        if (response.data?.success) {
+                            Swal.fire({
+                                position: "center",
+                                icon: "success",
+                                title: `Thay đổi ${labelEdit} thành công`,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            btnCancel()
+                        }
+                        else {
+                            Swal.fire({
+                                position: "center",
+                                icon: "error",
+                                title: `Mật khẩu cũ không chính xác!`,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            btnCancel()
+                        }
+                    }
                 }
-            } catch (error) {
-                console.error('Error fetching data:', error);
+                else
+                    Swal.fire({
+                        title: "Không được để trống",
+                        icon: "question"
+                    });
+            } else {
+                try {
+                    const payload = {
+                        [keyEdit]: valueEdit
+                    };
+                    const response = await axiosInstance.put(`user/${uid}`, payload);
+                    if (response.data.success) {
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: `Thay đổi ${labelEdit} thành công`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        btnCancel()
+                    } else {
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: `Thay đổi ${labelEdit} không thành công`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        btnCancel()
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
             }
             getUsers();
         } else {
@@ -190,7 +232,10 @@ const ProfileUserId = () => {
             });
         }
     }
-
+    const validatePassword = (password: string) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        return regex.test(password)
+    }
     return (
         <div>
             <Container>
@@ -200,9 +245,21 @@ const ProfileUserId = () => {
                         {isShowEdit && <div className="profile-edit-user">
                             <div className="profile-edit-user-form">
                                 <div className="profile-edit-user-label"> {labelEdit} </div>
-                                <div className="profile-edit-user-ip">
-                                    <input className="profile-edit-user-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={valueEdit}></input>
-                                </div>
+                                {keyEdit === 'password' ?
+                                    <div>
+
+                                        <div className="profile-edit-user-ip">
+                                            <input className="profile-edit-user-ip-text" style={{ width: '100%' }} onChange={(e) => setPasswordCurrent(e.target.value)} placeholder="Mật khẩu cũ..." value={passwordCurrent}></input>
+                                        </div>
+                                        <div className="profile-edit-user-ip">
+                                            <input className="profile-edit-user-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={valueEdit} placeholder="Mật khẩu mới..."></input>
+                                        </div>
+                                    </div>
+                                    :
+                                    <div className="profile-edit-user-ip">
+                                        <input className="profile-edit-user-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={valueEdit}></input>
+                                    </div>
+                                }
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <button className="profile-edit-user-btn-cancel" onClick={btnCancel}>Quay lại</button>
                                     <button className="profile-edit-user-btn" onClick={btnSubmitEidt}>Submit</button>
@@ -212,7 +269,7 @@ const ProfileUserId = () => {
                         {isShowEditAvatar && <div className="profile-edit-user">
                             <div className="profile-edit-user-form">
                                 <div className="profile-edit-user-label"> {labelEdit} </div>
-                                <div style={{ marginTop: '30px' , background : '#f93' , color : '#ffffff', textAlign: 'center' }}>
+                                <div style={{ marginTop: '30px', background: '#f93', color: '#ffffff', textAlign: 'center' }}>
                                     Tải ảnh lên
                                     <input type="file" className="profile-edit-user-avatar" style={{ width: '100%' }} onChange={handleEditAvatar} ></input>
                                 </div>
@@ -230,7 +287,7 @@ const ProfileUserId = () => {
                             <div className="profile-row">
                                 <div className="profile-row-lable"> Mật khẩu: </div>
                                 <div className="profile-row-ip">*************</div>
-                                <button className="profile-row-edit"> Thay đổi</button>
+                                <button className="profile-row-edit" onClick={() => changeUser(userData._id, 'password', userData.firstname, 'Thay đổi mật khẩu')}> Thay đổi</button>
                             </div>
                             <div className="profile-row">
                                 <div className="profile-row-lable"> Tên: </div>

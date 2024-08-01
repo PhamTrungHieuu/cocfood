@@ -10,13 +10,14 @@
 }
 
 .profile {
+    margin-left: 150px;
     width: 65%;
     margin-top: 40px;
     border-right: 1px solid #f93;
 }
 
 .profile-box {
-    margin-left: 150px;
+    
     position: relative;
     display: flex;
 }

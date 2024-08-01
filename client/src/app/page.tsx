@@ -55,9 +55,9 @@ export default function Home() {
     const hours = String(Math.floor(seconds / 3600)).padStart(2, '0');
     return hours;
   };
-  useEffect(() => {
-    dispatch(fetchUserData());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchUserData());
+  // }, [dispatch]);
   const formatPrice = (price: Number) => {
     return price.toLocaleString('vi-VN');
   };

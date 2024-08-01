@@ -5,7 +5,7 @@ import { ChangeEvent, use, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
-import { fetchUserData, logout } from '@/store/authSilce';
+import { clearMessage, fetchUserData, logout } from '@/store/authSilce';
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 import jwt, { JwtPayload } from 'jsonwebtoken';
@@ -53,7 +53,8 @@ const Header: React.FC = () => {
         tokenDecode();
     }, [localData])
     useEffect(() => {
-        dispatch(fetchUserData());
+        if (localData.isLoggedIn)
+            dispatch(fetchUserData());
     }, [dispatch]);
 
     useEffect(() => {
@@ -67,6 +68,16 @@ const Header: React.FC = () => {
 
         return () => clearInterval(interval);
     }, [slogan.length]);
+    useEffect(() => {
+        if (localData.mes)
+            Swal.fire({
+                text: localData.mes,
+                icon: "warning"
+            }).then(() => {
+                router.replace('/login')
+                dispatch(clearMessage());
+            });
+    }, [localData.mes]);
 
     useEffect(() => {
         if (pathname === '/') {
@@ -182,7 +193,10 @@ const Header: React.FC = () => {
                 <div className='header-link'>
                     <Link className={`header-link-text ${isColorTrangChu}`} href={'/'}>Trang chủ</Link>
                     <Link className={`header-link-text ${isColorSanPham}`} href={'/productlist'}>Sản phẩm</Link>
-                    <Link className={`header-link-text ${isColorOrder}`} href={'/order'}> Đơn hàng </Link>
+                    {
+                        isLoggedIn &&
+                        <Link className={`header-link-text ${isColorOrder}`} href={'/order'}> Đơn hàng </Link>
+                    }
                     {/* <Link className={`header-link-text ${isColorGioiThieu}`} href={'/about'}>Giới thiệu</Link> */}
                 </div>
             </div>

@@ -12,6 +12,7 @@ interface AuthState {
     categories: Category[] | null;
     isLoading: boolean;
     error: string | null;
+    mes: string | null;
 }
 
 export const getCategories = createAsyncThunk(
@@ -44,7 +45,6 @@ export const fetchUserData = createAsyncThunk(
             if (!token) {
                 throw new Error('Token not found');
             }
-
             const response = await axios.get('http://localhost:5000/api/user/current', {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -69,6 +69,7 @@ const initialState: AuthState = {
     categories: [],
     isLoading: false,
     error: null,
+    mes: null,
 };
 
 const authSlice = createSlice({
@@ -78,27 +79,29 @@ const authSlice = createSlice({
         login: (state, action: PayloadAction<string>) => {
             state.isLoggedIn = true;
             state.token = action.payload;
-            if (typeof window !== 'undefined') {
-                // localStorage.setItem('token', action.payload);
-                // localStorage.setItem('isLoggedIn', 'true');
-            }
         },
         logout: (state) => {
             state.isLoggedIn = false;
             state.token = null;
             state.userData = null;
-
-            // if (typeof window !== 'undefined') {
-            //     localStorage.removeItem('token');
-            //     localStorage.removeItem('isLoggedIn');
-            //     localStorage.removeItem('userData');
-            // }
         },
+        clearMessage: (state) => {
+            state.mes = null;
+        }
     },
     extraReducers: (builder) => {
         builder
             .addCase(fetchUserData.fulfilled, (state, action) => {
                 state.userData = action.payload;
+                state.isLoggedIn = true;
+            })
+            .addCase(fetchUserData.rejected, (state, action) => {
+                state.isLoading = false;
+                state.userData = null;
+                state.isLoggedIn = false;
+                state.token = null;
+                state.mes = 'Phiên đăng nhập đã hết hạn. Hãy đang nhập lại.'
+                
             })
             .addCase(getCategories.pending, (state) => {
                 state.isLoading = true;
@@ -115,5 +118,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout , clearMessage} = authSlice.actions;
 export default authSlice.reducer;
