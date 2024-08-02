@@ -104,7 +104,7 @@ const Categorys = () => {
                             <div className="profile-product-edit-product-label">Tên danh mục mới </div>
 
                             <div className="profile-product-edit-product-ip">
-                                <input className="profile-product-edit-product-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={title}></input>
+                                <input placeholder="Nhập tên danh mục mới..." className="profile-product-edit-product-ip-text" style={{ width: '100%' }} onChange={handleEdit} value={title}></input>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <button className="profile-product-edit-product-btn-cancel" onClick={btnCancel} >Quay lại</button>
@@ -115,10 +115,10 @@ const Categorys = () => {
                 </div>
             }
             <nav className="navbar justify-content-between">
-                <form className="form-inline d-flex" onSubmit={clickSearchProduct}>
-                    {/* <input className="form-control mr-sm-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" onChange={(e) => setTitleProduct(e.target.value)} /> */}
+                {/* <form className="form-inline d-flex" onSubmit={clickSearchProduct}>
+                     <input className="form-control mr-sm-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" onChange={(e) => setTitleProduct(e.target.value)} />
                     <button style={{ marginLeft: '20px', width: '200px' }} className="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm </button>
-                </form>
+                </form> */}
                 <Button variant="success" size="lg" className="me-2 mt-2" onClick={() => (setIsShowCreated(true))}>Thêm danh mục sản phẩm mới </Button>
             </nav>
             {categoryData?.length > 0 ? <table className="table table-striped">
@@ -135,9 +135,6 @@ const Categorys = () => {
                             <th scope="row">{index + 1}</th>
                             <td>{category.title}</td>
                             <td className="text-center align-middle">
-                                {/* <Link href={`/admin/products/${category?._id}`}>
-                                    <Button variant="primary" size="sm" className="me-2">Edit</Button>
-                                </Link> */}
                                 <Button variant="danger" size="sm" onClick={() => deleteCategorybtn(category._id)}>Delete</Button>
                             </td>
                         </tr>

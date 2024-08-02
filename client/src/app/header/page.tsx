@@ -168,6 +168,7 @@ const Header: React.FC = () => {
             showConfirmButton: false,
             timer: 1000
         });
+        router.replace('/')
         setIsHovered(false)
     }
     const hanleSearch = (e: ChangeEvent<HTMLInputElement>) => {
